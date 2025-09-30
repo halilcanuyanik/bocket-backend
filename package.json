@@ -1,0 +1,19 @@
+{
+  "name": "bocket-backend",
+  "version": "1.0.0",
+  "description": "It is a hypothetical platform that enables people to hear about any kind of upcoming events and activities based on their location (country, city, etc.), book seats, buy tickets, and be part of the true joy!",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/halilcanuyanik/bocket-backend.git"
+  },
+  "author": "halilcanuyanik",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/halilcanuyanik/bocket-backend/issues"
+  },
+  "homepage": "https://github.com/halilcanuyanik/bocket-backend#readme"
+}
