@@ -4,6 +4,11 @@ const catchAsync = require('../utils/catchAsync');
 const jwt = require('jsonwebtoken');
 const AppError = require('../utils/appError');
 const { promisify } = require('util');
+const ms = require('ms');
+
+function signToken(id, secret, expiresIn) {
+  return jwt.sign({ id }, secret, { expiresIn });
+}
 
 exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
@@ -15,11 +20,28 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   newUser.password = undefined;
 
-  const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
+  const refreshToken = signToken(
+    newUser._id,
+    process.env.JWT_REFRESH_SECRET,
+    process.env.REFRESH_EXPIRES_IN
+  );
+
+  const accessToken = signToken(
+    newUser._id,
+    process.env.JWT_ACCESS_SECRET,
+    process.env.ACCESS_EXPIRES_IN
+  );
+
+  const refreshTokenExpiry = ms(process.env.REFRESH_EXPIRES_IN);
+
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'Strict',
+    maxAge: refreshTokenExpiry,
   });
 
-  res.status(201).json({ status: 'success', token, data: { newUser } });
+  res.status(201).json({ status: 'success', accessToken, data: { newUser } });
 });
 
 exports.login = catchAsync(async (req, res, next) => {
