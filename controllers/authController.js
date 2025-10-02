@@ -18,8 +18,6 @@ exports.signup = catchAsync(async (req, res, next) => {
     passwordConfirm: req.body.passwordConfirm,
   });
 
-  newUser.password = undefined;
-
   const refreshToken = signToken(
     newUser._id,
     process.env.JWT_REFRESH_SECRET,
@@ -34,12 +32,18 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   const refreshTokenExpiry = ms(process.env.REFRESH_EXPIRES_IN);
 
+  await newUser.setRefreshToken(refreshToken, refreshTokenExpiry);
+
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'Strict',
     maxAge: refreshTokenExpiry,
   });
+
+  newUser.password = undefined;
+  newUser.refreshToken = undefined;
+  newUser.refreshTokenExpiresAt = undefined;
 
   res.status(201).json({ status: 'success', accessToken, data: { newUser } });
 });
@@ -56,13 +60,34 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError('Incorrect email or password!', 404));
   }
 
-  user.password = undefined;
+  const refreshToken = signToken(
+    user._id,
+    process.env.JWT_REFRESH_SECRET,
+    process.env.REFRESH_EXPIRES_IN
+  );
 
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
+  const accessToken = signToken(
+    user._id,
+    process.env.JWT_ACCESS_SECRET,
+    process.env.ACCESS_EXPIRES_IN
+  );
+
+  const refreshTokenExpiry = ms(process.env.REFRESH_EXPIRES_IN);
+
+  await user.setRefreshToken(refreshToken, refreshTokenExpiry);
+
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'Strict',
+    maxAge: refreshTokenExpiry,
   });
 
-  res.status(200).json({ status: 'success', token, data: { user } });
+  user.password = undefined;
+  user.refreshToken = undefined;
+  user.refreshTokenExpiresAt = undefined;
+
+  res.status(200).json({ status: 'success', accessToken, data: { user } });
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -101,4 +126,8 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   req.user = currentUser;
   next();
+});
+
+exports.refreshToken = catchAsync(async (req, res, next) => {
+  const token = req.cookies.refreshToken;
 });
