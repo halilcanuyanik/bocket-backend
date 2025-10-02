@@ -105,7 +105,10 @@ exports.protect = catchAsync(async (req, res, next) => {
     );
   }
 
-  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  const decoded = await promisify(jwt.verify)(
+    token,
+    process.env.JWT_ACCESS_SECRET
+  );
 
   const currentUser = await User.findById(decoded.id);
 
@@ -118,7 +121,7 @@ exports.protect = catchAsync(async (req, res, next) => {
     );
   }
 
-  if (await currentUser.hasPasswordChangedAfter(decoded.iat)) {
+  if (await currentUser.passwordChangedAfter(decoded.iat)) {
     return next(
       new AppError('User recently changed password! Please log in again', 401)
     );
@@ -128,6 +131,17 @@ exports.protect = catchAsync(async (req, res, next) => {
   next();
 });
 
-exports.refreshToken = catchAsync(async (req, res, next) => {
-  const token = req.cookies.refreshToken;
+exports.logout = catchAsync(async (req, res, next) => {
+  const user = req.user;
+  user.refreshToken = undefined;
+  user.refreshTokenExpiresAt = undefined;
+  await user.save({ validateBeforeSave: false });
+
+  res.clearCookie('refreshToken', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'Strict',
+  });
+
+  res.status(200).json({ status: 'success', data: null });
 });
