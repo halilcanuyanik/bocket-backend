@@ -199,6 +199,36 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     .json({ status: 'success', message: 'The password changed successfully!' });
 });
 
+exports.refreshToken = catchAsync(async (req, res, next) => {
+  const refreshToken = req.cookies.refreshToken;
+
+  const hashedToken = crypto
+    .createHash('sha256')
+    .update(refreshToken)
+    .digest('hex');
+
+  const user = await User.findOne({
+    refreshToken: hashedToken,
+    refreshTokenExpiresAt: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    return next(new AppError('Token is invalid or expired!', 404));
+  }
+
+  const accessToken = signToken(
+    user._id,
+    process.env.JWT_ACCESS_SECRET,
+    process.env.ACCESS_EXPIRES_IN
+  );
+
+  res.status(200).json({
+    status: 'success',
+    accessToken,
+    message: 'The access token sent successfully',
+  });
+});
+
 exports.logout = catchAsync(async (req, res, next) => {
   const user = req.user;
   user.refreshToken = undefined;
