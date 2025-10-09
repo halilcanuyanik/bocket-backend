@@ -3,6 +3,7 @@ const app = express();
 const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const { xss } = require('express-xss-sanitizer');
 
 const userRouter = require('./routes/userRoutes');
 
@@ -12,6 +13,10 @@ const globalErrorHandler = require('./controllers/errorController');
 app.use(helmet());
 
 app.use(express.json({ limit: '10kb' }));
+// app.use(express.urlencoded({ extended: true }));
+
+app.use(xss());
+
 app.use(cookieParser());
 
 const limiter = rateLimit({
@@ -21,6 +26,10 @@ const limiter = rateLimit({
 });
 
 app.use('/', limiter);
+
+// app.post('/test', (req, res) => {
+//   res.send(req.body);
+// });
 
 app.use('/users', userRouter);
 
