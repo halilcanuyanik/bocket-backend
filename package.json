@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/halilcanuyanik/bocket-backend#readme",
   "dependencies": {
+    "@exortek/express-mongo-sanitize": "^1.1.1",
     "bcryptjs": "^3.0.2",
     "cookie-parser": "^1.4.7",
     "dotenv": "^17.2.3",

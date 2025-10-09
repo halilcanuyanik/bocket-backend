@@ -5,6 +5,7 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const { xss } = require('express-xss-sanitizer');
 const htmlSanitizeMiddleware = require('./utils/htmlSanitize');
+const expressMongoSanitize = require('@exortek/express-mongo-sanitize');
 
 const userRouter = require('./routes/userRoutes');
 
@@ -19,6 +20,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(htmlSanitizeMiddleware);
 
 app.use(xss());
+
+app.use(expressMongoSanitize());
 
 app.use(cookieParser());
 
