@@ -8,6 +8,7 @@ const htmlSanitizeMiddleware = require('./utils/htmlSanitize');
 const expressMongoSanitize = require('@exortek/express-mongo-sanitize');
 
 const userRouter = require('./routes/userRoutes');
+const eventRouter = require('./routes/eventRoutes');
 
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -34,6 +35,7 @@ const limiter = rateLimit({
 app.use('/', limiter);
 
 app.use('/users', userRouter);
+app.use('/events', eventRouter);
 
 app.use('/test', (req, res) => {
   res.send(req.body);
