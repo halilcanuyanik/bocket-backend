@@ -15,7 +15,7 @@ const globalErrorHandler = require('./controllers/errorController');
 app.use(helmet());
 
 app.use(express.json({ limit: '10kb' }));
-app.use(express.urlencoded({ extended: true }));
+// app.use(express.urlencoded({ extended: true }));
 
 app.use(htmlSanitizeMiddleware);
 

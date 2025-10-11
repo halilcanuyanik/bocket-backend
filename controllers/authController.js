@@ -103,7 +103,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   if (!token) {
     return next(
-      new AppError('You are not logged in! Please log in to gain access!')
+      new AppError('You are not logged in! Please log in to gain access!', 401)
     );
   }
 
@@ -131,6 +131,12 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   req.user = currentUser;
   next();
+});
+
+exports.verify = catchAsync(async (req, res, next) => {
+  res
+    .status(200)
+    .json({ status: 'success', message: 'The user verified successfully!' });
 });
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
