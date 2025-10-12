@@ -4,4 +4,6 @@ config.env
 data/
 file-script.js
 
+public/uploads
+
 .prettierrc
