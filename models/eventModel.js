@@ -21,6 +21,7 @@ const eventSchema = new mongoose.Schema({
         'The category should be either concert, theatre, festival, stand up and other',
     },
     required: [true, 'An event must have a category'],
+    select: false,
   },
   location: {
     city: String,
@@ -41,6 +42,7 @@ const eventSchema = new mongoose.Schema({
   coverImage: {
     type: String,
     default: '/uploads/events/default-cover.jpg',
+    select: false,
   },
   gallery: [String],
   createdBy: {

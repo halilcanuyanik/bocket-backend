@@ -15,7 +15,16 @@ exports.getEvents = catchAsync(async (req, res, next) => {
   if (!events) {
     return next(new AppError('No event found!', 404));
   }
-  res.status(200).json({ status: 'success', data: events });
+  res.status(200).json({ status: 'success', data: { events } });
+});
+
+exports.getEvent = catchAsync(async (req, res, next) => {
+  const event = await Event.findById(req.params.id);
+
+  if (!event) {
+    return next(new AppError('No event found!', 404));
+  }
+  res.status(200).json({ status: 'success', data: { event } });
 });
 
 exports.createEvent = catchAsync(async (req, res, next) => {
@@ -33,5 +42,26 @@ exports.createEvent = catchAsync(async (req, res, next) => {
     ticketsAvailable: req.body.ticketsAvailable,
     coverImage: req.file.path,
   });
-  res.status(201).json({ status: 'success', data: newEvent });
+  res.status(201).json({ status: 'success', data: { newEvent } });
+});
+
+exports.updateEvent = catchAsync(async (req, res, next) => {
+  const updatedEvent = await Event.findByIdAndUpdate(req.params.id, req.body, {
+    runValidators: true,
+    new: true,
+  });
+
+  if (!updatedEvent) {
+    return next(new AppError('Event not found!', 404));
+  }
+
+  res.status(200).json({ status: 'success', data: { updatedEvent } });
+});
+
+exports.deleteEvent = catchAsync(async (req, res, next) => {
+  const deletedEvent = await Event.findByIdAndDelete(req.params.id);
+  if (!deletedEvent) {
+    return next(new AppError('Event not found!', 404));
+  }
+  res.status(204).json({ status: 'success', data: null });
 });

@@ -14,4 +14,10 @@ router
     eventController.createEvent
   );
 
+router
+  .route('/:id')
+  .get(eventController.getEvent)
+  .patch(authController.protect, eventController.updateEvent)
+  .delete(authController.protect, eventController.deleteEvent);
+
 module.exports = router;
