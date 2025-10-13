@@ -7,6 +7,7 @@ const { xss } = require('express-xss-sanitizer');
 const htmlSanitizeMiddleware = require('./utils/htmlSanitize');
 const expressMongoSanitize = require('@exortek/express-mongo-sanitize');
 const hpp = require('hpp');
+const cors = require('cors');
 
 const userRouter = require('./routes/userRoutes');
 const eventRouter = require('./routes/eventRoutes');
@@ -15,6 +16,8 @@ const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 
 app.use(helmet());
+
+app.use(cors({ origin: 'http://localhost:5173' }));
 
 app.use(express.static(`${__dirname}/public`));
 
