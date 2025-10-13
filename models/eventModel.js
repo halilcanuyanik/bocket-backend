@@ -42,7 +42,6 @@ const eventSchema = new mongoose.Schema({
   coverImage: {
     type: String,
     default: '/uploads/events/default-cover.jpg',
-    select: false,
   },
   gallery: [String],
   createdBy: {

@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const { xss } = require('express-xss-sanitizer');
 const htmlSanitizeMiddleware = require('./utils/htmlSanitize');
 const expressMongoSanitize = require('@exortek/express-mongo-sanitize');
+const hpp = require('hpp');
 
 const userRouter = require('./routes/userRoutes');
 const eventRouter = require('./routes/eventRoutes');
@@ -25,6 +26,8 @@ app.use(htmlSanitizeMiddleware);
 app.use(xss());
 
 app.use(expressMongoSanitize());
+
+app.use(hpp());
 
 app.use(cookieParser());
 
