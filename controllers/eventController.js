@@ -28,6 +28,7 @@ exports.getEvent = catchAsync(async (req, res, next) => {
 });
 
 exports.createEvent = catchAsync(async (req, res, next) => {
+  // console.log(req.body.coverImage);
   const newEvent = await Event.create({
     title: req.body.title,
     description: req.body.description,
@@ -40,7 +41,7 @@ exports.createEvent = catchAsync(async (req, res, next) => {
     date: req.body.date,
     price: req.body.price,
     ticketsAvailable: req.body.ticketsAvailable,
-    coverImage: req.file.path,
+    coverImage: req.body.coverImage,
   });
   res.status(201).json({ status: 'success', data: { newEvent } });
 });
