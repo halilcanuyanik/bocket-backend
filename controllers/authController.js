@@ -39,7 +39,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'Strict',
+    sameSite: 'None',
     maxAge: refreshTokenExpiry,
   });
 
@@ -81,7 +81,7 @@ exports.login = catchAsync(async (req, res, next) => {
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'Strict',
+    sameSite: 'None',
     maxAge: refreshTokenExpiry,
   });
 
@@ -256,7 +256,7 @@ exports.logout = catchAsync(async (req, res, next) => {
   res.clearCookie('refreshToken', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'Strict',
+    sameSite: 'None',
   });
 
   res.status(200).json({ status: 'success', data: null });
