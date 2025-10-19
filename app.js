@@ -8,6 +8,9 @@ const htmlSanitizeMiddleware = require('./utils/htmlSanitize');
 const mongoSanitizeMiddleware = require('./utils/mongoSanitize');
 const hpp = require('hpp');
 const cors = require('cors');
+const qs = require('qs');
+
+app.set('query parser', (str) => qs.parse(str));
 
 const userRouter = require('./routes/userRoutes');
 const eventRouter = require('./routes/eventRoutes');

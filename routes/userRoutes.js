@@ -13,11 +13,34 @@ router.route('/refreshToken').post(authController.refreshToken);
 
 router.route('/verify').get(authController.protect, authController.verify);
 
-router.route('/').get(userController.getUsers).post(userController.createUser);
+router
+  .route('/')
+  .get(
+    authController.protect,
+    authController.restrictTo('admin'),
+    userController.getUsers
+  )
+  .post(
+    authController.protect,
+    authController.restrictTo('admin'),
+    userController.createUser
+  );
 router
   .route('/:id')
-  .get(userController.getUser)
-  .patch(userController.updateUser)
-  .delete(userController.deleteUser);
+  .get(
+    authController.protect,
+    authController.restrictTo('admin'),
+    userController.getUser
+  )
+  .patch(
+    authController.protect,
+    authController.restrictTo('admin'),
+    userController.updateUser
+  )
+  .delete(
+    authController.protect,
+    authController.restrictTo('admin'),
+    userController.deleteUser
+  );
 
 module.exports = router;

@@ -6,6 +6,10 @@ const eventController = require('../controllers/eventController');
 const router = express.Router();
 
 router
+  .route('/upcoming-five')
+  .get(eventController.upcomingFive, eventController.getEvents);
+
+router
   .route('/')
   .get(eventController.getEvents)
   .post(
