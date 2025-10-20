@@ -6,7 +6,7 @@ const APIFeatures = require('../utils/apiFeatures');
 exports.upcomingFive = (req, res, next) => {
   req.query.limit = 5;
   req.query.sort = 'date';
-  req.query.fields = 'title,description,artist,date,coverImage';
+  req.query.fields = 'title,artist,price,coverImage';
   next();
 };
 
