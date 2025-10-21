@@ -39,7 +39,7 @@ const eventSchema = new mongoose.Schema(
       enum: ['pending', 'approved', 'rejected'],
       default: 'pending',
     },
-    artists: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    performers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Performer' }],
   },
   { timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' } }
 );
