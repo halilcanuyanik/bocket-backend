@@ -14,6 +14,7 @@ const ticketSchema = new mongoose.Schema(
     },
     instanceId: {
       type: mongoose.Schema.Types.ObjectId,
+      ref: 'EventInstance',
       required: true,
     },
     seatNumber: {

@@ -1,27 +1,5 @@
 const mongoose = require('mongoose');
 
-const eventInstanceSchema = new mongoose.Schema({
-  venueId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Venue',
-    required: true,
-  },
-  date: {
-    type: Date,
-    required: true,
-  },
-  startTime: {
-    type: String,
-  },
-  endTime: {
-    type: String,
-  },
-  baseTicketPrice: {
-    type: Number,
-    required: true,
-  },
-});
-
 const eventSchema = new mongoose.Schema(
   {
     title: {
@@ -61,10 +39,9 @@ const eventSchema = new mongoose.Schema(
       enum: ['pending', 'approved', 'rejected'],
       default: 'pending',
     },
-    instances: [eventInstanceSchema],
     artists: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   },
-  { timestamps: { createdAt: 'createdAt' } }
+  { timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' } }
 );
 
 const Event = new mongoose.model('Event', eventSchema);
