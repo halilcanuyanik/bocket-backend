@@ -38,16 +38,12 @@ exports.createEvent = catchAsync(async (req, res, next) => {
   const newEvent = await Event.create({
     title: req.body.title,
     description: req.body.description,
-    artist: req.body.artist,
     category: req.body.category,
-    location: {
-      city: req.body['location.city'],
-      venue: req.body['location.venue'],
-    },
-    date: req.body.date,
-    price: req.body.price,
-    ticketsAvailable: req.body.ticketsAvailable,
     coverImage: req.body.coverImage,
+    organizerId: req.body.organizerId,
+    approvedBy: req.body.approvedBy,
+    status: req.body.status,
+    performers: req.body.performers,
   });
   res.status(201).json({ status: 'success', data: { newEvent } });
 });

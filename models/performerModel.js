@@ -7,7 +7,7 @@ const performerSchema = new mongoose.Schema({
   },
   avatarImage: {
     type: String,
-    default: '/uploads/events/default-cover.jpg',
+    default: '/uploads/performers/default-avatar.jpg',
   },
 });
 
