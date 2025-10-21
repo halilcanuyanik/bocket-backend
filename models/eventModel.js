@@ -1,54 +1,71 @@
 const mongoose = require('mongoose');
 
-const eventSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: [true, 'An event must have a title'],
-    trim: true,
-  },
-  description: {
-    type: String,
-    trim: true,
-  },
-  artist: {
-    type: String,
-  },
-  category: {
-    type: String,
-    enum: {
-      values: ['concert', 'theatre', 'festival', 'stand up', 'other'],
-      message:
-        'The category should be either concert, theatre, festival, stand up and other',
-    },
-    required: [true, 'An event must have a category'],
-    select: false,
-  },
-  location: {
-    city: String,
-    venue: String,
+const eventInstanceSchema = new mongoose.Schema({
+  venueId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Venue',
+    required: true,
   },
   date: {
     type: Date,
-    required: [true, 'An event must have a date'],
+    required: true,
   },
-  price: {
-    type: Number,
-    min: [0, 'Price must be a positive number'],
-  },
-  ticketsAvailable: {
-    type: Number,
-    min: [0, 'Tickets cannot be negative'],
-  },
-  coverImage: {
+  startTime: {
     type: String,
-    default: '/uploads/events/default-cover.jpg',
   },
-  gallery: [String],
-  createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+  endTime: {
+    type: String,
+  },
+  baseTicketPrice: {
+    type: Number,
+    required: true,
   },
 });
+
+const eventSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: [true, 'An event must have a title'],
+      trim: true,
+    },
+    description: {
+      type: String,
+      trim: true,
+    },
+    category: {
+      type: String,
+      enum: {
+        values: ['concert', 'theatre', 'festival', 'stand up', 'other'],
+        message:
+          'The category should be either concert, theatre, festival, stand up and other',
+      },
+      required: [true, 'An event must have a category'],
+      select: false,
+    },
+    coverImage: {
+      type: String,
+      default: '/uploads/events/default-cover.jpg',
+    },
+    organizerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    approvedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending',
+    },
+    instances: [eventInstanceSchema],
+    artists: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  },
+  { timestamps: { createdAt: 'createdAt' } }
+);
 
 const Event = new mongoose.model('Event', eventSchema);
 
