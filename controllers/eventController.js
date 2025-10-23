@@ -3,13 +3,6 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 
-exports.upcomingFive = (req, res, next) => {
-  req.query.limit = 5;
-  req.query.sort = 'date';
-  req.query.fields = 'title,artist,price,coverImage';
-  next();
-};
-
 exports.getEvents = catchAsync(async (req, res, next) => {
   const features = new APIFeatures(req.query, Event.find())
     .filter()
