@@ -14,9 +14,9 @@ const eventSchema = new mongoose.Schema(
     category: {
       type: String,
       enum: {
-        values: ['concert', 'theatre', 'festival', 'stand up', 'other'],
+        values: ['concert', 'theatre', 'festival', 'stand up', 'gala', 'other'],
         message:
-          'The category should be either concert, theatre, festival, stand up and other',
+          'The category should be either concert, theatre, festival, stand up, gala and other',
       },
       required: [true, 'An event must have a category'],
       select: false,
@@ -25,14 +25,16 @@ const eventSchema = new mongoose.Schema(
       type: String,
       default: '/uploads/events/default-cover.jpg',
     },
-    organizerId: {
+    organizatorId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
+      select: false,
     },
     approvedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
+      select: false,
     },
     status: {
       type: String,
