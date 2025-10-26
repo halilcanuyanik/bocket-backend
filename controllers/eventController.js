@@ -24,6 +24,7 @@ exports.getEvent = catchAsync(async (req, res, next) => {
   if (!event) {
     return next(new AppError('No event found!', 404));
   }
+
   res.status(200).json({ status: 'success', data: { event } });
 });
 
@@ -38,6 +39,7 @@ exports.createEvent = catchAsync(async (req, res, next) => {
     status: req.body.status,
     performers: req.body.performers,
   });
+
   res.status(201).json({ status: 'success', data: { newEvent } });
 });
 
@@ -55,9 +57,16 @@ exports.updateEvent = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteEvent = catchAsync(async (req, res, next) => {
-  const deletedEvent = await Event.findByIdAndDelete(req.params.id);
-  if (!deletedEvent) {
+  const eventId = req.params.id;
+
+  const event = await Event.findById(eventId);
+
+  if (!event) {
     return next(new AppError('Event not found!', 404));
   }
+
+  await EventInstance.deleteMany({ eventId });
+  await event.deleteOne();
+
   res.status(204).json({ status: 'success', data: null });
 });

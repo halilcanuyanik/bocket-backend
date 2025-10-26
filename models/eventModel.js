@@ -1,50 +1,55 @@
 const mongoose = require('mongoose');
 
-const eventSchema = new mongoose.Schema(
-  {
-    title: {
-      type: String,
-      required: [true, 'An event must have a title'],
-      trim: true,
-    },
-    description: {
-      type: String,
-      trim: true,
-    },
-    category: {
-      type: String,
-      enum: {
-        values: ['concert', 'theatre', 'festival', 'stand up', 'gala', 'other'],
-        message:
-          'The category should be either concert, theatre, festival, stand up, gala and other',
-      },
-      required: [true, 'An event must have a category'],
-      select: false,
-    },
-    coverImage: {
-      type: String,
-      default: '/uploads/events/default-cover.jpg',
-    },
-    organizatorId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-      select: false,
-    },
-    approvedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      select: false,
-    },
-    status: {
-      type: String,
-      enum: ['pending', 'approved', 'rejected'],
-      default: 'pending',
-    },
-    performers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Performer' }],
+const eventSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: [true, 'An event must have a title'],
+    trim: true,
   },
-  { timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' } }
-);
+  description: {
+    type: String,
+    trim: true,
+  },
+  category: {
+    type: String,
+    enum: {
+      values: ['concert', 'theatre', 'festival', 'stand up', 'gala', 'other'],
+      message:
+        'The category should be either concert, theatre, festival, stand up, gala and other',
+    },
+    required: [true, 'An event must have a category'],
+    select: false,
+  },
+  coverImage: {
+    type: String,
+    default: '/uploads/events/default-cover.jpg',
+  },
+  organizatorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+    select: false,
+  },
+  approvedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    select: false,
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending',
+  },
+  performers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Performer' }],
+  createdAt: {
+    type: Date,
+    select: false,
+  },
+  updatedAt: {
+    type: Date,
+    select: false,
+  },
+});
 
 const Event = new mongoose.model('Event', eventSchema);
 

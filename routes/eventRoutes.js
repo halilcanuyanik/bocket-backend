@@ -1,7 +1,7 @@
 const express = require('express');
 const authController = require('../controllers/authController');
 const eventController = require('../controllers/eventController');
-// const uploadController = require('../controllers/uploadController');
+const eventInstanceController = require('../controllers/eventInstanceController');
 
 const router = express.Router();
 
@@ -26,6 +26,30 @@ router
     authController.protect,
     authController.restrictTo('admin'),
     eventController.deleteEvent
+  );
+
+router.route('/:id/instances').get(eventInstanceController.getEventInstances);
+
+router
+  .route('/instances')
+  .post(
+    authController.protect,
+    authController.restrictTo('admin'),
+    eventInstanceController.createEventInstance
+  );
+
+router
+  .route('/instances/:id')
+  .get(eventInstanceController.getEventInstance)
+  .patch(
+    authController.protect,
+    authController.restrictTo('admin'),
+    eventInstanceController.updateEventInstance
+  )
+  .delete(
+    authController.protect,
+    authController.restrictTo('admin'),
+    eventInstanceController.deleteEventInstance
   );
 
 module.exports = router;
