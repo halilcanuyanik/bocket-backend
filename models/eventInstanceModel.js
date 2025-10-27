@@ -25,13 +25,11 @@ const eventInstanceSchema = new mongoose.Schema(
     baseTicketPrice: {
       type: Number,
       required: true,
+      min: 0,
     },
   },
   { timestamps: true }
 );
-
-eventInstanceSchema.index({ venueId: 1, date: 1 });
-eventInstanceSchema.index({ eventId: 1 });
 
 const EventInstance = mongoose.model('EventInstance', eventInstanceSchema);
 

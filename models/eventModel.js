@@ -39,6 +39,7 @@ const eventSchema = new mongoose.Schema({
     type: String,
     enum: ['pending', 'approved', 'rejected'],
     default: 'pending',
+    select: false,
   },
   performers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Performer' }],
   createdAt: {
@@ -49,6 +50,14 @@ const eventSchema = new mongoose.Schema({
     type: Date,
     select: false,
   },
+});
+
+eventSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'performers',
+    select: 'name avatarImage',
+  });
+  next();
 });
 
 const Event = new mongoose.model('Event', eventSchema);
