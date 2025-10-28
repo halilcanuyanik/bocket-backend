@@ -9,6 +9,14 @@ const performerSchema = new mongoose.Schema({
     type: String,
     default: '/uploads/performers/default-avatar.jpg',
   },
+  averageRating: {
+    type: Number,
+    default: 0,
+  },
+  ratingCount: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Performer = new mongoose.model('Performer', performerSchema);

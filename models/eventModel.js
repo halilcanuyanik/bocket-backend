@@ -46,6 +46,14 @@ const eventSchema = new mongoose.Schema({
     type: Date,
     select: false,
   },
+  averageRating: {
+    type: Number,
+    default: 0,
+  },
+  ratingCount: {
+    type: Number,
+    default: 0,
+  },
   updatedAt: {
     type: Date,
     select: false,
