@@ -2,6 +2,23 @@ const Event = require('../models/eventModel');
 const EventInstance = require('../models/eventInstanceModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const APIFeatures = require('../utils/apiFeatures');
+
+exports.getAllEventInstances = catchAsync(async (req, res, next) => {
+  const features = new APIFeatures(req.query, EventInstance.find())
+    .filter()
+    .sort()
+    .limitFields();
+  // .paginate();
+
+  const allEventInstances = await features.monQuery;
+
+  if (!allEventInstances) {
+    return next(new AppError('There is no any event instance!', 404));
+  }
+
+  res.status(200).json({ status: 'success', data: { allEventInstances } });
+});
 
 exports.getEventInstances = catchAsync(async (req, res, next) => {
   const eventId = req.params.id;
@@ -23,7 +40,7 @@ exports.getEventInstances = catchAsync(async (req, res, next) => {
 exports.getEventInstance = catchAsync(async (req, res, next) => {
   const instance = await EventInstance.findById(req.params.id);
 
-  if (!instance.length) {
+  if (!instance) {
     return next(new AppError('No instance found!', 404));
   }
 

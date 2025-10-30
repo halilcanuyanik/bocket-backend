@@ -6,32 +6,12 @@ const eventInstanceController = require('../controllers/eventInstanceController'
 const router = express.Router();
 
 router
-  .route('/')
-  .get(eventController.getEvents)
-  .post(
-    authController.protect,
-    authController.restrictTo('admin'),
-    eventController.createEvent
-  );
-
-router
-  .route('/:id')
-  .get(eventController.getEvent)
-  .patch(
-    authController.protect,
-    authController.restrictTo('admin'),
-    eventController.updateEvent
-  )
-  .delete(
-    authController.protect,
-    authController.restrictTo('admin'),
-    eventController.deleteEvent
-  );
-
-router.route('/:id/instances').get(eventInstanceController.getEventInstances);
-
-router
   .route('/instances')
+  .get(
+    authController.protect,
+    authController.restrictTo('admin'),
+    eventInstanceController.getAllEventInstances
+  )
   .post(
     authController.protect,
     authController.restrictTo('admin'),
@@ -50,6 +30,31 @@ router
     authController.protect,
     authController.restrictTo('admin'),
     eventInstanceController.deleteEventInstance
+  );
+
+router.route('/:id/instances').get(eventInstanceController.getEventInstances);
+
+router
+  .route('/:id')
+  .get(eventController.getEvent)
+  .patch(
+    authController.protect,
+    authController.restrictTo('admin'),
+    eventController.updateEvent
+  )
+  .delete(
+    authController.protect,
+    authController.restrictTo('admin'),
+    eventController.deleteEvent
+  );
+
+router
+  .route('/')
+  .get(eventController.getEvents)
+  .post(
+    authController.protect,
+    authController.restrictTo('admin'),
+    eventController.createEvent
   );
 
 module.exports = router;

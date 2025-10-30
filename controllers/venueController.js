@@ -4,7 +4,13 @@ const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 
 exports.getVenues = catchAsync(async (req, res, next) => {
-  const venues = await Venue.find();
+  const features = new APIFeatures(req.query, Venue.find())
+    .filter()
+    .sort()
+    .limitFields();
+  // .paginate();
+
+  const venues = await features.monQuery;
 
   if (!venues) {
     return next(new AppError('No venue found!', 404));
