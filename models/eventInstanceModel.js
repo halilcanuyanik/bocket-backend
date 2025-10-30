@@ -6,6 +6,7 @@ const eventInstanceSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Event',
       required: true,
+      index: true,
     },
     venueId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -15,21 +16,38 @@ const eventInstanceSchema = new mongoose.Schema(
     date: {
       type: Date,
       required: true,
+      index: true,
     },
     startTime: {
-      type: String,
+      type: Date,
+      required: true,
     },
     endTime: {
-      type: String,
+      type: Date,
+      validate: {
+        validator: function (val) {
+          return !val || val > this.startTime;
+        },
+        message: 'End time must be after the start time',
+      },
     },
-    baseTicketPrice: {
-      type: Number,
-      required: true,
-      min: 0,
+    pricing: {
+      _id: false,
+      base: {
+        type: Number,
+        required: true,
+        min: 0,
+      },
+      currency: {
+        type: String,
+        default: 'USD',
+      },
     },
   },
   { timestamps: true }
 );
+
+eventInstanceSchema.index({ eventId: 1, date: 1 });
 
 const EventInstance = mongoose.model('EventInstance', eventInstanceSchema);
 

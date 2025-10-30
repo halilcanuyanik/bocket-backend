@@ -43,7 +43,10 @@ exports.createEventInstance = catchAsync(async (req, res, next) => {
     date: req.body.date,
     startTime: req.body.startTime,
     endTime: req.body.endTime,
-    baseTicketPrice: req.body.baseTicketPrice,
+    pricing: {
+      base: req.body.pricing?.base,
+      currency: req.body.pricing?.currency,
+    },
   });
 
   res.status(201).json({ status: 'success', data: { newEventInstance } });
@@ -58,7 +61,10 @@ exports.updateEventInstance = catchAsync(async (req, res, next) => {
       date: req.body.date,
       startTime: req.body.startTime,
       endTime: req.body.endTime,
-      baseTicketPrice: req.body.baseTicketPrice,
+      pricing: {
+        base: req.body.pricing?.base,
+        currency: req.body.pricing?.currency,
+      },
     },
     { new: true, runValidators: true }
   );
