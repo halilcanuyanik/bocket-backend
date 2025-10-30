@@ -7,8 +7,8 @@ exports.getEvents = catchAsync(async (req, res, next) => {
   const features = new APIFeatures(req.query, Event.find())
     .filter()
     .sort()
-    .limitFields()
-    .paginate();
+    .limitFields();
+  // .paginate();
 
   const events = await features.monQuery;
 
@@ -44,10 +44,23 @@ exports.createEvent = catchAsync(async (req, res, next) => {
 });
 
 exports.updateEvent = catchAsync(async (req, res, next) => {
-  const updatedEvent = await Event.findByIdAndUpdate(req.params.id, req.body, {
-    runValidators: true,
-    new: true,
-  });
+  const updatedEvent = await Event.findByIdAndUpdate(
+    req.params.id,
+    {
+      title: req.body.title,
+      description: req.body.description,
+      category: req.body.category,
+      coverImage: req.body.coverImage,
+      organizerId: req.body.organizerId,
+      approvedBy: req.body.approvedBy,
+      status: req.body.status,
+      performers: req.body.performers,
+    },
+    {
+      runValidators: true,
+      new: true,
+    }
+  );
 
   if (!updatedEvent) {
     return next(new AppError('Event not found!', 404));

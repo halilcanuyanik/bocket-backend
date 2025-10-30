@@ -42,10 +42,6 @@ const eventSchema = new mongoose.Schema({
     select: false,
   },
   performers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Performer' }],
-  createdAt: {
-    type: Date,
-    select: false,
-  },
   averageRating: {
     type: Number,
     default: 0,
@@ -53,6 +49,10 @@ const eventSchema = new mongoose.Schema({
   ratingCount: {
     type: Number,
     default: 0,
+  },
+  createdAt: {
+    type: Date,
+    select: false,
   },
   updatedAt: {
     type: Date,

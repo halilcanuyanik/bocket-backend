@@ -3,16 +3,6 @@ const EventInstance = require('../models/eventInstanceModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 
-exports.getEventInstance = catchAsync(async (req, res, next) => {
-  const instance = await EventInstance.findById(req.params.id);
-
-  if (!instance.length) {
-    return next(new AppError('No instance found!', 404));
-  }
-
-  res.status(200).json({ status: 'success', data: { instance } });
-});
-
 exports.getEventInstances = catchAsync(async (req, res, next) => {
   const eventId = req.params.id;
 
@@ -28,6 +18,16 @@ exports.getEventInstances = catchAsync(async (req, res, next) => {
   }
 
   res.status(200).json({ status: 'success', data: { instances } });
+});
+
+exports.getEventInstance = catchAsync(async (req, res, next) => {
+  const instance = await EventInstance.findById(req.params.id);
+
+  if (!instance.length) {
+    return next(new AppError('No instance found!', 404));
+  }
+
+  res.status(200).json({ status: 'success', data: { instance } });
 });
 
 exports.createEventInstance = catchAsync(async (req, res, next) => {
@@ -52,7 +52,14 @@ exports.createEventInstance = catchAsync(async (req, res, next) => {
 exports.updateEventInstance = catchAsync(async (req, res, next) => {
   const updatedInstance = await EventInstance.findByIdAndUpdate(
     req.params.id,
-    req.body,
+    {
+      eventId: req.body.eventId,
+      venueId: req.body.venueId,
+      date: req.body.date,
+      startTime: req.body.startTime,
+      endTime: req.body.endTime,
+      baseTicketPrice: req.body.baseTicketPrice,
+    },
     { new: true, runValidators: true }
   );
 

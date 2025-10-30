@@ -31,6 +31,8 @@ exports.createPerformer = catchAsync(async (req, res, next) => {
   const newPerformer = await Performer.create({
     name: req.body.name,
     avatarImage: req.body.avatarImage,
+    averageRating: req.body.averageRating,
+    ratingCount: req.body.ratingCount,
   });
   res.status(201).json({ status: 'success', data: { newPerformer } });
 });
@@ -38,7 +40,12 @@ exports.createPerformer = catchAsync(async (req, res, next) => {
 exports.updatePerformer = catchAsync(async (req, res, next) => {
   const updatedPerformer = await Performer.findByIdAndUpdate(
     req.params.id,
-    req.body,
+    {
+      name: req.body.name,
+      avatarImage: req.body.avatarImage,
+      averageRating: req.body.averageRating,
+      ratingCount: req.body.ratingCount,
+    },
     {
       runValidators: true,
       new: true,

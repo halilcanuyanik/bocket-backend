@@ -15,6 +15,7 @@ app.set('query parser', (str) => qs.parse(str));
 const userRouter = require('./routes/userRoutes');
 const eventRouter = require('./routes/eventRoutes');
 const performerRouter = require('./routes/performerRoutes');
+const venueRouter = require('./routes/venueRoutes');
 
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -49,6 +50,7 @@ app.use('/', limiter);
 app.use('/users', userRouter);
 app.use('/events', eventRouter);
 app.use('/performers', performerRouter);
+app.use('/venues', venueRouter);
 
 app.use('/test', (req, res) => {
   res.send(req.body);

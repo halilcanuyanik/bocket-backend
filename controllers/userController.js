@@ -25,10 +25,14 @@ exports.createUser = catchAsync(async (req, res, next) => {
 });
 
 exports.updateUser = catchAsync(async (req, res, next) => {
-  const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {
-    runValidators: true,
-    new: true,
-  });
+  const updatedUser = await User.findByIdAndUpdate(
+    req.params.id,
+    { name: req.body.name, email: req.body.email },
+    {
+      runValidators: true,
+      new: true,
+    }
+  );
 
   if (!updatedUser) {
     return next(new AppError('User not found!', 404));
