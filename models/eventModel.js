@@ -22,7 +22,8 @@ const eventSchema = new mongoose.Schema({
   },
   coverImage: {
     type: String,
-    default: '/uploads/events/default-cover.jpg',
+    default:
+      'https://raw.githubusercontent.com/halilcanuyanik/bocket-assets/main/eventImgs/default.png',
   },
   organizatorId: {
     type: mongoose.Schema.Types.ObjectId,
