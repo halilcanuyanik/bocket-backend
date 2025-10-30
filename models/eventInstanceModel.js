@@ -47,6 +47,21 @@ const eventInstanceSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+eventInstanceSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'eventId',
+    select: 'title performers',
+    populate: {
+      path: 'performers',
+      select: 'name',
+    },
+  }).populate({
+    path: 'venueId',
+    select: 'country city address',
+  });
+  next();
+});
+
 eventInstanceSchema.index({ eventId: 1, date: 1 });
 
 const EventInstance = mongoose.model('EventInstance', eventInstanceSchema);
