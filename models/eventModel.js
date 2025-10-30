@@ -23,7 +23,7 @@ const eventSchema = new mongoose.Schema({
   coverImage: {
     type: String,
     default:
-      'https://raw.githubusercontent.com/halilcanuyanik/bocket-assets/main/eventImgs/default.png',
+      'https://raw.githubusercontent.com/halilcanuyanik/bocket-assets/main/eventCovers/default.png',
   },
   organizatorId: {
     type: mongoose.Schema.Types.ObjectId,

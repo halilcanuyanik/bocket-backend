@@ -8,7 +8,7 @@ const performerSchema = new mongoose.Schema({
   avatarImage: {
     type: String,
     default:
-      'https://raw.githubusercontent.com/halilcanuyanik/bocket-assets/main/avatarImgs/default.png',
+      'https://raw.githubusercontent.com/halilcanuyanik/bocket-assets/main/performerAvatars/default.png',
   },
   averageRating: {
     type: Number,
