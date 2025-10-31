@@ -12,10 +12,6 @@ const eventInstanceSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Venue',
       required: true,
-    },
-    date: {
-      type: Date,
-      required: true,
       index: true,
     },
     startTime: {
@@ -24,6 +20,7 @@ const eventInstanceSchema = new mongoose.Schema(
     },
     endTime: {
       type: Date,
+      required: false,
       validate: {
         validator: function (val) {
           return !val || val > this.startTime;
@@ -62,7 +59,8 @@ eventInstanceSchema.pre(/^find/, function (next) {
   next();
 });
 
-eventInstanceSchema.index({ eventId: 1, date: 1 });
+eventInstanceSchema.index({ eventId: 1, startTime: 1 });
+eventInstanceSchema.index({ venueId: 1, startTime: 1 });
 
 const EventInstance = mongoose.model('EventInstance', eventInstanceSchema);
 
