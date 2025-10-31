@@ -57,7 +57,6 @@ exports.createEventInstance = catchAsync(async (req, res, next) => {
   const newEventInstance = await EventInstance.create({
     eventId: req.body.eventId,
     venueId: req.body.venueId,
-    date: req.body.date,
     startTime: req.body.startTime,
     endTime: req.body.endTime,
     pricing: {
@@ -75,7 +74,6 @@ exports.updateEventInstance = catchAsync(async (req, res, next) => {
     {
       eventId: req.body.eventId,
       venueId: req.body.venueId,
-      date: req.body.date,
       startTime: req.body.startTime,
       endTime: req.body.endTime,
       pricing: {
