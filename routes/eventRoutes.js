@@ -19,6 +19,10 @@ router
   );
 
 router
+  .route('/topFiveRatedEvents')
+  .get(eventController.topFiveRatedEvents, eventController.getEvents);
+
+router
   .route('/instances/:id')
   .get(eventInstanceController.getEventInstance)
   .patch(
