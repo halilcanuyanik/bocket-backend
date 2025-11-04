@@ -7,8 +7,8 @@ exports.getVenues = catchAsync(async (req, res, next) => {
   const features = new APIFeatures(req.query, Venue.find())
     .filter()
     .sort()
-    .limitFields();
-  // .paginate();
+    .limitFields()
+    .paginate();
 
   const venues = await features.monQuery;
 
