@@ -28,9 +28,6 @@ const eventInstanceSchema = new mongoose.Schema(
         message: 'End time must be after the start time',
       },
     },
-    availableTickets: {
-      type: Number,
-    },
     pricing: {
       _id: false,
       base: {
@@ -57,7 +54,7 @@ eventInstanceSchema.pre(/^find/, function (next) {
     },
   }).populate({
     path: 'venueId',
-    select: 'country city address',
+    select: 'country city address capacity',
   });
   next();
 });

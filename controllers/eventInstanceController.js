@@ -8,8 +8,8 @@ exports.getAllEventInstances = catchAsync(async (req, res, next) => {
   const features = new APIFeatures(req.query, EventInstance.find())
     .filter()
     .sort()
-    .limitFields();
-  // .paginate();
+    .limitFields()
+    .paginate();
 
   const allEventInstances = await features.monQuery;
 
@@ -63,7 +63,6 @@ exports.createEventInstance = catchAsync(async (req, res, next) => {
       base: req.body.pricing?.base,
       currency: req.body.pricing?.currency,
     },
-    availableTickets: req.body.availableTickets,
   });
 
   res.status(201).json({ status: 'success', data: { newEventInstance } });
@@ -81,7 +80,6 @@ exports.updateEventInstance = catchAsync(async (req, res, next) => {
         base: req.body.pricing?.base,
         currency: req.body.pricing?.currency,
       },
-      availableTickets: req.body.availableTickets,
     },
     { new: true, runValidators: true }
   );

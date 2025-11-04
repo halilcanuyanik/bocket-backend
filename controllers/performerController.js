@@ -7,8 +7,8 @@ exports.getPerformers = catchAsync(async (req, res, next) => {
   const features = new APIFeatures(req.query, Performer.find())
     .filter()
     .sort()
-    .limitFields();
-  // .paginate();
+    .limitFields()
+    .paginate();
 
   const performers = await features.monQuery;
 
