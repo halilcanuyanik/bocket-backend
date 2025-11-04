@@ -28,6 +28,10 @@ const eventInstanceSchema = new mongoose.Schema(
         message: 'End time must be after the start time',
       },
     },
+    availableTickets: {
+      type: Number,
+      default: undefined,
+    },
     pricing: {
       _id: false,
       base: {
@@ -43,6 +47,16 @@ const eventInstanceSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+eventInstanceSchema.pre('save', async function (next) {
+  if (this.isNew && !this.availableTickets) {
+    const Venue = mongoose.model('Venue');
+    const venue = await Venue.findById(this.venueId).select('capacity');
+    if (!venue) return next(new AppError('Venue not found', 404));
+    this.availableTickets = venue.capacity;
+  }
+  next();
+});
 
 eventInstanceSchema.pre(/^find/, function (next) {
   this.populate({
