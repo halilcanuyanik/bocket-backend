@@ -18,6 +18,13 @@ router
     eventInstanceController.createEventInstance
   );
 
+router
+  .route('/upcomingEvents')
+  .get(
+    eventInstanceController.upcomingEvents,
+    eventInstanceController.getAllEventInstances
+  );
+
 router.route('/almostSoldOut').get(eventInstanceController.almostSoldOut);
 
 router

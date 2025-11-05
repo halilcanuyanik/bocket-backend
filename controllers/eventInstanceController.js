@@ -4,6 +4,12 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 
+exports.upcomingEvents = (req, res, next) => {
+  req.query.limit = 10;
+  req.query.sort = 'startTime';
+  next();
+};
+
 exports.almostSoldOut = catchAsync(async (req, res, next) => {
   const pipeline = [
     {
