@@ -53,6 +53,14 @@ exports.almostSoldOut = catchAsync(async (req, res, next) => {
       },
     },
     { $unwind: '$eventId' },
+    {
+      $addFields: {
+        event: '$eventId',
+      },
+    },
+    {
+      $unset: 'eventId',
+    },
   ];
 
   const almostSoldOutInstances = await EventInstance.aggregate(pipeline);
