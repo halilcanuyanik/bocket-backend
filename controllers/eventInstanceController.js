@@ -56,13 +56,13 @@ exports.upcomingEvents = catchAsync(async (req, res, next) => {
     { $limit: 10 },
   ];
 
-  const upcomingEvents = await EventInstance.aggregate(pipeline);
+  const eventInstances = await EventInstance.aggregate(pipeline);
 
-  if (!upcomingEvents.length) {
+  if (!eventInstances.length) {
     return next(new AppError('No upcoming events found!', 404));
   }
 
-  res.status(200).json({ status: 'success', data: { upcomingEvents } });
+  res.status(200).json({ status: 'success', data: { eventInstances } });
 });
 
 exports.almostSoldOut = catchAsync(async (req, res, next) => {
@@ -118,13 +118,13 @@ exports.almostSoldOut = catchAsync(async (req, res, next) => {
     },
   ];
 
-  const almostSoldOutInstances = await EventInstance.aggregate(pipeline);
+  const eventInstances = await EventInstance.aggregate(pipeline);
 
-  if (!almostSoldOutInstances || almostSoldOutInstances.length === 0) {
+  if (!eventInstances || eventInstances.length === 0) {
     return next(new AppError('No nearly sold out events found!', 404));
   }
 
-  res.status(200).json({ status: 'success', data: { almostSoldOutInstances } });
+  res.status(200).json({ status: 'success', data: { eventInstances } });
 });
 
 exports.getAllEventInstances = catchAsync(async (req, res, next) => {
