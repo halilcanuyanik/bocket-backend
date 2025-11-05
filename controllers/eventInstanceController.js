@@ -4,15 +4,10 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 
-exports.upcomingEvents = catchAsync(async (req, res, next) => {
-  const pipeline = [
-    {
-      $match: {
-        startTime: { $gte: new Date() },
-      },
-    },
+exports.upcomingEvents = (req, res, next) => {
+  req.pipeline = [
+    { $match: { startTime: { $gte: new Date() } } },
     { $sort: { startTime: 1 } },
-
     {
       $group: {
         _id: '$eventId',
@@ -30,6 +25,21 @@ exports.upcomingEvents = catchAsync(async (req, res, next) => {
       },
     },
     { $unwind: '$eventId' },
+
+    {
+      $lookup: {
+        from: 'performers',
+        localField: 'eventId.performers',
+        foreignField: '_id',
+        as: 'eventPerformers',
+      },
+    },
+    {
+      $set: {
+        'eventId.performers': '$eventPerformers',
+      },
+    },
+    { $unset: 'eventPerformers' },
 
     {
       $lookup: {
@@ -47,26 +57,16 @@ exports.upcomingEvents = catchAsync(async (req, res, next) => {
         venue: '$venueId',
       },
     },
-    {
-      $unset: ['eventId', 'venueId'],
-    },
+    { $unset: ['eventId', 'venueId'] },
 
     { $sort: { startTime: 1 } },
-
     { $limit: 10 },
   ];
+  next();
+};
 
-  const eventInstances = await EventInstance.aggregate(pipeline);
-
-  if (!eventInstances.length) {
-    return next(new AppError('No upcoming events found!', 404));
-  }
-
-  res.status(200).json({ status: 'success', data: { eventInstances } });
-});
-
-exports.almostSoldOut = catchAsync(async (req, res, next) => {
-  const pipeline = [
+exports.almostSoldOut = (req, res, next) => {
+  req.pipeline = [
     {
       $lookup: {
         from: 'venues',
@@ -76,7 +76,6 @@ exports.almostSoldOut = catchAsync(async (req, res, next) => {
       },
     },
     { $unwind: '$venue' },
-
     {
       $addFields: {
         fillRatio: {
@@ -84,9 +83,7 @@ exports.almostSoldOut = catchAsync(async (req, res, next) => {
         },
       },
     },
-
     { $sort: { fillRatio: -1 } },
-
     {
       $group: {
         _id: '$eventId',
@@ -94,9 +91,7 @@ exports.almostSoldOut = catchAsync(async (req, res, next) => {
       },
     },
     { $replaceRoot: { newRoot: '$eventInstance' } },
-
     { $sort: { fillRatio: -1 } },
-
     { $limit: 10 },
 
     {
@@ -108,37 +103,47 @@ exports.almostSoldOut = catchAsync(async (req, res, next) => {
       },
     },
     { $unwind: '$eventId' },
+
     {
-      $addFields: {
-        event: '$eventId',
+      $lookup: {
+        from: 'performers',
+        localField: 'eventId.performers',
+        foreignField: '_id',
+        as: 'eventPerformers',
       },
     },
     {
-      $unset: 'eventId',
+      $set: {
+        'eventId.performers': '$eventPerformers',
+      },
     },
+    { $unset: 'eventPerformers' },
+
+    {
+      $addFields: { event: '$eventId' },
+    },
+    { $unset: 'eventId' },
   ];
 
-  const eventInstances = await EventInstance.aggregate(pipeline);
-
-  if (!eventInstances || eventInstances.length === 0) {
-    return next(new AppError('No nearly sold out events found!', 404));
-  }
-
-  res.status(200).json({ status: 'success', data: { eventInstances } });
-});
+  next();
+};
 
 exports.getAllEventInstances = catchAsync(async (req, res, next) => {
-  const features = new APIFeatures(req.query, EventInstance.find())
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate();
+  let allEventInstances;
 
-  const allEventInstances = await features.monQuery;
-
-  if (!allEventInstances) {
-    return next(new AppError('There is no any event instance!', 404));
+  if (req.pipeline) {
+    allEventInstances = await EventInstance.aggregate(req.pipeline);
+  } else {
+    const features = new APIFeatures(req.query, EventInstance.find())
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+    allEventInstances = await features.monQuery;
   }
+
+  if (!allEventInstances || allEventInstances.length === 0)
+    return next(new AppError('No event instances found', 404));
 
   res.status(200).json({ status: 'success', data: { allEventInstances } });
 });
