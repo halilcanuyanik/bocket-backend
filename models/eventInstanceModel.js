@@ -45,7 +45,19 @@ const eventInstanceSchema = new mongoose.Schema(
       },
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: {
+      virtuals: true,
+      transform: (_, ret) => {
+        ret.event = ret.eventId;
+        ret.venue = ret.venueId;
+        delete ret.eventId;
+        delete ret.venueId;
+        return ret;
+      },
+    },
+  }
 );
 
 eventInstanceSchema.pre('save', async function (next) {
@@ -68,7 +80,7 @@ eventInstanceSchema.pre(/^find/, function (next) {
     },
   }).populate({
     path: 'venueId',
-    select: 'country city address capacity',
+    select: 'name country city address capacity',
   });
   next();
 });
