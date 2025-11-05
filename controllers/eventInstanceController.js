@@ -4,11 +4,66 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 
-exports.upcomingEvents = (req, res, next) => {
-  req.query.limit = 10;
-  req.query.sort = 'startTime';
-  next();
-};
+exports.upcomingEvents = catchAsync(async (req, res, next) => {
+  const pipeline = [
+    {
+      $match: {
+        startTime: { $gte: new Date() },
+      },
+    },
+    { $sort: { startTime: 1 } },
+
+    {
+      $group: {
+        _id: '$eventId',
+        eventInstance: { $first: '$$ROOT' },
+      },
+    },
+    { $replaceRoot: { newRoot: '$eventInstance' } },
+
+    {
+      $lookup: {
+        from: 'events',
+        localField: 'eventId',
+        foreignField: '_id',
+        as: 'eventId',
+      },
+    },
+    { $unwind: '$eventId' },
+
+    {
+      $lookup: {
+        from: 'venues',
+        localField: 'venueId',
+        foreignField: '_id',
+        as: 'venueId',
+      },
+    },
+    { $unwind: '$venueId' },
+
+    {
+      $addFields: {
+        event: '$eventId',
+        venue: '$venueId',
+      },
+    },
+    {
+      $unset: ['eventId', 'venueId'],
+    },
+
+    { $sort: { startTime: 1 } },
+
+    { $limit: 10 },
+  ];
+
+  const upcomingEvents = await EventInstance.aggregate(pipeline);
+
+  if (!upcomingEvents.length) {
+    return next(new AppError('No upcoming events found!', 404));
+  }
+
+  res.status(200).json({ status: 'success', data: { upcomingEvents } });
+});
 
 exports.almostSoldOut = catchAsync(async (req, res, next) => {
   const pipeline = [
