@@ -18,6 +18,8 @@ router
     eventInstanceController.createEventInstance
   );
 
+router.route('/almostSoldOut').get(eventInstanceController.almostSoldOut);
+
 router
   .route('/topFiveRatedEvents')
   .get(eventController.topFiveRatedEvents, eventController.getEvents);

@@ -4,6 +4,60 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 
+exports.almostSoldOut = catchAsync(async (req, res, next) => {
+  const pipeline = [
+    {
+      $lookup: {
+        from: 'venues',
+        localField: 'venueId',
+        foreignField: '_id',
+        as: 'venue',
+      },
+    },
+    { $unwind: '$venue' },
+
+    {
+      $addFields: {
+        fillRatio: {
+          $subtract: [1, { $divide: ['$availableTickets', '$venue.capacity'] }],
+        },
+      },
+    },
+
+    { $sort: { fillRatio: -1 } },
+
+    {
+      $group: {
+        _id: '$eventId',
+        eventInstance: { $first: '$$ROOT' },
+      },
+    },
+    { $replaceRoot: { newRoot: '$eventInstance' } },
+
+    { $sort: { fillRatio: -1 } },
+
+    { $limit: 10 },
+
+    {
+      $lookup: {
+        from: 'events',
+        localField: 'eventId',
+        foreignField: '_id',
+        as: 'eventId',
+      },
+    },
+    { $unwind: '$eventId' },
+  ];
+
+  const almostSoldOutInstances = await EventInstance.aggregate(pipeline);
+
+  if (!almostSoldOutInstances || almostSoldOutInstances.length === 0) {
+    return next(new AppError('No nearly sold out events found!', 404));
+  }
+
+  res.status(200).json({ status: 'success', data: { almostSoldOutInstances } });
+});
+
 exports.getAllEventInstances = catchAsync(async (req, res, next) => {
   const features = new APIFeatures(req.query, EventInstance.find())
     .filter()
