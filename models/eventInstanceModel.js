@@ -73,7 +73,7 @@ eventInstanceSchema.pre('save', async function (next) {
 eventInstanceSchema.pre(/^find/, function (next) {
   this.populate({
     path: 'eventId',
-    select: 'title coverImage performers',
+    select: 'title description coverImage performers',
     populate: {
       path: 'performers',
       select: 'name',
