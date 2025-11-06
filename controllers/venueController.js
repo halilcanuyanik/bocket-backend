@@ -16,7 +16,7 @@ exports.getVenues = catchAsync(async (req, res, next) => {
     return next(new AppError('No venue found!', 404));
   }
 
-  res.status(200).json({ status: 'success', data: { venues } });
+  res.status(200).json({ status: 'success', data: venues });
 });
 
 exports.getVenue = catchAsync(async (req, res, next) => {
@@ -26,7 +26,7 @@ exports.getVenue = catchAsync(async (req, res, next) => {
     return next(new AppError('No venue found!', 404));
   }
 
-  res.status(200).json({ status: 'success', data: { venue } });
+  res.status(200).json({ status: 'success', data: venue });
 });
 
 exports.createVenue = catchAsync(async (req, res, next) => {
@@ -40,7 +40,7 @@ exports.createVenue = catchAsync(async (req, res, next) => {
     capacity: req.body.capacity,
   });
 
-  res.status(201).json({ status: 'success', data: { newVenue } });
+  res.status(201).json({ status: 'success', data: newVenue });
 });
 
 exports.updateVenue = catchAsync(async (req, res, next) => {

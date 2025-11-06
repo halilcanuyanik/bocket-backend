@@ -145,7 +145,7 @@ exports.getAllEventInstances = catchAsync(async (req, res, next) => {
   if (!allEventInstances || allEventInstances.length === 0)
     return next(new AppError('No event instances found', 404));
 
-  res.status(200).json({ status: 'success', data: { allEventInstances } });
+  res.status(200).json({ status: 'success', data: allEventInstances });
 });
 
 exports.getEventInstances = catchAsync(async (req, res, next) => {
@@ -162,7 +162,7 @@ exports.getEventInstances = catchAsync(async (req, res, next) => {
     return next(new AppError('No instance found for this event!', 404));
   }
 
-  res.status(200).json({ status: 'success', data: { instances } });
+  res.status(200).json({ status: 'success', data: instances });
 });
 
 exports.getEventInstance = catchAsync(async (req, res, next) => {
@@ -172,7 +172,7 @@ exports.getEventInstance = catchAsync(async (req, res, next) => {
     return next(new AppError('No instance found!', 404));
   }
 
-  res.status(200).json({ status: 'success', data: { instance } });
+  res.status(200).json({ status: 'success', data: instance });
 });
 
 exports.createEventInstance = catchAsync(async (req, res, next) => {
@@ -193,7 +193,7 @@ exports.createEventInstance = catchAsync(async (req, res, next) => {
     },
   });
 
-  res.status(201).json({ status: 'success', data: { newEventInstance } });
+  res.status(201).json({ status: 'success', data: newEventInstance });
 });
 
 exports.updateEventInstance = catchAsync(async (req, res, next) => {
@@ -215,7 +215,7 @@ exports.updateEventInstance = catchAsync(async (req, res, next) => {
   if (!updatedInstance)
     return next(new AppError('Event instance not found!', 404));
 
-  res.status(200).json({ status: 'success', data: { updatedInstance } });
+  res.status(200).json({ status: 'success', data: updatedInstance });
 });
 
 exports.deleteEventInstance = catchAsync(async (req, res, next) => {

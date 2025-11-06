@@ -46,7 +46,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   newUser.refreshToken = undefined;
   newUser.refreshTokenExpiresAt = undefined;
 
-  res.status(201).json({ status: 'success', accessToken, data: { newUser } });
+  res.status(201).json({ status: 'success', accessToken, data: newUser });
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -88,7 +88,7 @@ exports.login = catchAsync(async (req, res, next) => {
   user.refreshToken = undefined;
   user.refreshTokenExpiresAt = undefined;
 
-  res.status(200).json({ status: 'success', accessToken, data: { user } });
+  res.status(200).json({ status: 'success', accessToken, data: user });
 });
 
 exports.protect = catchAsync(async (req, res, next) => {

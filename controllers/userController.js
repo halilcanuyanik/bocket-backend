@@ -7,7 +7,7 @@ exports.getUsers = catchAsync(async (req, res, next) => {
   if (!users) {
     return next(new AppError('No user found!', 404));
   }
-  res.status(200).json({ status: 'success', data: { users } });
+  res.status(200).json({ status: 'success', data: users });
 });
 
 exports.getUser = catchAsync(async (req, res, next) => {
@@ -16,12 +16,12 @@ exports.getUser = catchAsync(async (req, res, next) => {
   if (!user) {
     return next(new AppError('No user found!', 404));
   }
-  res.status(200).json({ status: 'success', data: { user } });
+  res.status(200).json({ status: 'success', data: user });
 });
 
 exports.createUser = catchAsync(async (req, res, next) => {
   const newUser = await User.create(req.body);
-  res.status(201).json({ status: 'success', data: { newUser } });
+  res.status(201).json({ status: 'success', data: newUser });
 });
 
 exports.updateUser = catchAsync(async (req, res, next) => {
@@ -37,7 +37,7 @@ exports.updateUser = catchAsync(async (req, res, next) => {
   if (!updatedUser) {
     return next(new AppError('User not found!', 404));
   }
-  res.status(200).json({ status: 'success', data: { updatedUser } });
+  res.status(200).json({ status: 'success', data: updatedUser });
 });
 
 exports.deleteUser = catchAsync(async (req, res, next) => {

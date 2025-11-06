@@ -15,7 +15,7 @@ exports.getPerformers = catchAsync(async (req, res, next) => {
   if (!performers) {
     return next(new AppError('No performer found!', 404));
   }
-  res.status(200).json({ status: 'success', data: { performers } });
+  res.status(200).json({ status: 'success', data: performers });
 });
 
 exports.getPerformer = catchAsync(async (req, res, next) => {
@@ -24,7 +24,7 @@ exports.getPerformer = catchAsync(async (req, res, next) => {
   if (!performer) {
     return next(new AppError('No performer found!', 404));
   }
-  res.status(200).json({ status: 'success', data: { performer } });
+  res.status(200).json({ status: 'success', data: performer });
 });
 
 exports.createPerformer = catchAsync(async (req, res, next) => {
@@ -34,7 +34,7 @@ exports.createPerformer = catchAsync(async (req, res, next) => {
     averageRating: req.body.averageRating,
     ratingCount: req.body.ratingCount,
   });
-  res.status(201).json({ status: 'success', data: { newPerformer } });
+  res.status(201).json({ status: 'success', data: newPerformer });
 });
 
 exports.updatePerformer = catchAsync(async (req, res, next) => {
@@ -56,7 +56,7 @@ exports.updatePerformer = catchAsync(async (req, res, next) => {
     return next(new AppError('Performer not found!', 404));
   }
 
-  res.status(200).json({ status: 'success', data: { updatedPerformer } });
+  res.status(200).json({ status: 'success', data: updatedPerformer });
 });
 
 exports.deletePerformer = catchAsync(async (req, res, next) => {
