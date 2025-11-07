@@ -17,6 +17,10 @@ const handleValidationErrorDB = (err) => {
   return new AppError(message, 400);
 };
 
+const handleJWTError = (err) => new AppError('Invalid token!', 401);
+
+const handleJWTExpiredError = (err) => new AppError('Token expired!', 401);
+
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
@@ -45,7 +49,11 @@ module.exports = (err, req, res, next) => {
   err.status = err.status || 'error';
 
   if (process.env.NODE_ENV === 'development') {
-    sendErrorDev(err, res);
+    let error = err;
+    if (error.name === 'JsonWebTokenError') error = handleJWTError(error);
+    else if (error.name === 'TokenExpiredError')
+      error = handleJWTExpiredError(error);
+    sendErrorDev(error, res);
   } else if (process.env.NODE_ENV === 'production') {
     let error = err;
     if (error.name === 'CastError') error = handleCastErrorDB(error);
