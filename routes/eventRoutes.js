@@ -7,11 +7,7 @@ const router = express.Router();
 
 router
   .route('/instances')
-  .get(
-    authController.protect,
-    authController.restrictTo('admin'),
-    eventInstanceController.getAllEventInstances
-  )
+  .get(eventInstanceController.getAllEventInstances)
   .post(
     authController.protect,
     authController.restrictTo('admin'),
