@@ -324,7 +324,7 @@ exports.refreshToken = catchAsync(async (req, res, next) => {
 exports.refreshTokenMobile = catchAsync(async (req, res, next) => {
   const { refreshToken } = req.body;
 
-  if (!refreshToken) return next(new AppError('Refresh token required', 400));
+  if (!refreshToken) return next(new AppError('Refresh token required!', 400));
 
   const hashedToken = crypto
     .createHash('sha256')
@@ -352,7 +352,7 @@ exports.refreshTokenMobile = catchAsync(async (req, res, next) => {
 
   const refreshTokenExpiry = ms(process.env.REFRESH_EXPIRES_IN);
 
-  await user.setRefreshToken(refreshToken, refreshTokenExpiry);
+  await user.setRefreshToken(newRefreshToken, refreshTokenExpiry);
 
   user.password = undefined;
   user.refreshToken = undefined;
