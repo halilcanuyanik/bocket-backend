@@ -153,7 +153,7 @@ exports.loginAll = catchAsync(async (req, res, next) => {
 
   const isMobile =
     /mobile|android|iphone|ipad|ios|reactnative|okhttp/i.test(userAgent) ||
-    req.headers['X-Device-Type'] === 'Mobile';
+    req.headers['x-device-type'] === 'Mobile';
 
   user.password = undefined;
   user.refreshToken = undefined;
@@ -335,6 +335,7 @@ exports.refreshToken = catchAsync(async (req, res, next) => {
   );
 
   const isMobile = !!req.headers.authorization;
+
   if (isMobile) {
     const newRefreshToken = signToken(
       user._id,
