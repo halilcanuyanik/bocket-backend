@@ -322,7 +322,13 @@ exports.refreshToken = catchAsync(async (req, res, next) => {
 });
 
 exports.refreshTokenMobile = catchAsync(async (req, res, next) => {
-  const { refreshToken } = req.body;
+  let refreshToken;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    refreshToken = req.headers.authorization.split(' ')[1];
+  }
 
   if (!refreshToken) return next(new AppError('Refresh token required!', 400));
 
