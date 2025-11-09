@@ -73,14 +73,13 @@ eventInstanceSchema.pre('save', async function (next) {
 eventInstanceSchema.pre(/^find/, function (next) {
   this.populate({
     path: 'eventId',
-    select: 'title description coverImage performers',
     populate: {
       path: 'performers',
       select: 'name',
     },
   }).populate({
     path: 'venueId',
-    select: 'name country city address capacity',
+    // select: 'name country city address capacity',
   });
   next();
 });
