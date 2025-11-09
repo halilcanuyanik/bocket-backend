@@ -49,7 +49,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   res.status(201).json({ status: 'success', accessToken, data: newUser });
 });
 
-exports.signupMobile = catchAsync(async (req, res, next) => {
+exports.signupAll = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
     name: req.body.name,
     email: req.body.email,
@@ -70,47 +70,29 @@ exports.signupMobile = catchAsync(async (req, res, next) => {
   );
 
   const refreshTokenExpiry = ms(process.env.REFRESH_EXPIRES_IN);
+
   await newUser.setRefreshToken(refreshToken, refreshTokenExpiry);
+
+  // mobile check
+
+  const userAgent = req.headers['user-agent'] || '';
+
+  const isMobile =
+    /mobile|android|iphone|ipad|ios|reactnative|okhttp/i.test(userAgent) ||
+    req.headers['x-device-type'] === 'Mobile';
 
   newUser.password = undefined;
   newUser.refreshToken = undefined;
   newUser.refreshTokenExpiresAt = undefined;
 
-  res.status(201).json({
-    status: 'success',
-    accessToken,
-    refreshToken,
-    data: newUser,
-  });
-});
-
-exports.login = catchAsync(async (req, res, next) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    return next(new AppError('Please provide email and password!', 400));
+  if (isMobile) {
+    return res.status(200).json({
+      status: 'success',
+      accessToken,
+      refreshToken,
+      data: newUser,
+    });
   }
-
-  const user = await User.findOne({ email }).select('+password');
-
-  if (!user || !(await user.isPasswordCorrect(password, user.password))) {
-    return next(new AppError('Incorrect email or password!', 404));
-  }
-
-  const refreshToken = signToken(
-    user._id,
-    process.env.JWT_REFRESH_SECRET,
-    process.env.REFRESH_EXPIRES_IN
-  );
-
-  const accessToken = signToken(
-    user._id,
-    process.env.JWT_ACCESS_SECRET,
-    process.env.ACCESS_EXPIRES_IN
-  );
-
-  const refreshTokenExpiry = ms(process.env.REFRESH_EXPIRES_IN);
-
-  await user.setRefreshToken(refreshToken, refreshTokenExpiry);
 
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
@@ -119,19 +101,21 @@ exports.login = catchAsync(async (req, res, next) => {
     maxAge: refreshTokenExpiry,
   });
 
-  user.password = undefined;
-  user.refreshToken = undefined;
-  user.refreshTokenExpiresAt = undefined;
-
-  res.status(200).json({ status: 'success', accessToken, data: user });
+  res.status(201).json({
+    status: 'success',
+    accessToken,
+    data: newUser,
+  });
 });
 
-exports.loginAll = catchAsync(async (req, res, next) => {
+exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
+
   if (!email || !password)
     return next(new AppError('Please provide email and password', 400));
 
   const user = await User.findOne({ email }).select('+password');
+
   if (!user || !(await user.isPasswordCorrect(password, user.password)))
     return next(new AppError('Incorrect email or password', 404));
 
@@ -140,14 +124,18 @@ exports.loginAll = catchAsync(async (req, res, next) => {
     process.env.JWT_REFRESH_SECRET,
     process.env.REFRESH_EXPIRES_IN
   );
+
   const accessToken = signToken(
     user._id,
     process.env.JWT_ACCESS_SECRET,
     process.env.ACCESS_EXPIRES_IN
   );
+
   const refreshTokenExpiry = ms(process.env.REFRESH_EXPIRES_IN);
 
   await user.setRefreshToken(refreshToken, refreshTokenExpiry);
+
+  // mobile check
 
   const userAgent = req.headers['user-agent'] || '';
 
