@@ -35,44 +35,6 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   await newUser.setRefreshToken(refreshToken, refreshTokenExpiry);
 
-  res.cookie('refreshToken', refreshToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'None',
-    maxAge: refreshTokenExpiry,
-  });
-
-  newUser.password = undefined;
-  newUser.refreshToken = undefined;
-  newUser.refreshTokenExpiresAt = undefined;
-
-  res.status(201).json({ status: 'success', accessToken, data: newUser });
-});
-
-exports.signupAll = catchAsync(async (req, res, next) => {
-  const newUser = await User.create({
-    name: req.body.name,
-    email: req.body.email,
-    password: req.body.password,
-    passwordConfirm: req.body.passwordConfirm,
-  });
-
-  const refreshToken = signToken(
-    newUser._id,
-    process.env.JWT_REFRESH_SECRET,
-    process.env.REFRESH_EXPIRES_IN
-  );
-
-  const accessToken = signToken(
-    newUser._id,
-    process.env.JWT_ACCESS_SECRET,
-    process.env.ACCESS_EXPIRES_IN
-  );
-
-  const refreshTokenExpiry = ms(process.env.REFRESH_EXPIRES_IN);
-
-  await newUser.setRefreshToken(refreshToken, refreshTokenExpiry);
-
   // mobile check
 
   const userAgent = req.headers['user-agent'] || '';
