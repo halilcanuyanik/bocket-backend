@@ -292,7 +292,13 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 });
 
 exports.refreshToken = catchAsync(async (req, res, next) => {
-  const refreshToken = req.cookies.refreshToken;
+  let refreshToken =
+    req.cookies.refreshToken ||
+    (req.headers.authorization?.startsWith('Bearer')
+      ? req.headers.authorization.split(' ')[1]
+      : null);
+
+  if (!refreshToken) return next(new AppError('Refresh token required', 400));
 
   const hashedToken = crypto
     .createHash('sha256')
@@ -304,9 +310,7 @@ exports.refreshToken = catchAsync(async (req, res, next) => {
     refreshTokenExpiresAt: { $gt: Date.now() },
   });
 
-  if (!user) {
-    return next(new AppError('Token is invalid or expired!', 404));
-  }
+  if (!user) return next(new AppError('Token is invalid or expired', 401));
 
   const accessToken = signToken(
     user._id,
@@ -314,61 +318,34 @@ exports.refreshToken = catchAsync(async (req, res, next) => {
     process.env.ACCESS_EXPIRES_IN
   );
 
-  res.status(200).json({
-    status: 'success',
-    accessToken,
-    message: 'The access token sent successfully',
-  });
-});
+  const isMobile = !!req.headers.authorization;
+  if (isMobile) {
+    const newRefreshToken = signToken(
+      user._id,
+      process.env.JWT_REFRESH_SECRET,
+      process.env.REFRESH_EXPIRES_IN
+    );
 
-exports.refreshTokenMobile = catchAsync(async (req, res, next) => {
-  let refreshToken;
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
-  ) {
-    refreshToken = req.headers.authorization.split(' ')[1];
+    const refreshTokenExpiry = ms(process.env.REFRESH_EXPIRES_IN);
+
+    await user.setRefreshToken(newRefreshToken, refreshTokenExpiry);
+
+    user.password = undefined;
+    user.refreshToken = undefined;
+    user.refreshTokenExpiresAt = undefined;
+
+    return res.status(200).json({
+      status: 'success',
+      accessToken,
+      refreshToken: newRefreshToken,
+      message: 'Tokens refreshed successfully',
+    });
   }
 
-  if (!refreshToken) return next(new AppError('Refresh token required!', 400));
-
-  const hashedToken = crypto
-    .createHash('sha256')
-    .update(refreshToken)
-    .digest('hex');
-
-  const user = await User.findOne({
-    refreshToken: hashedToken,
-    refreshTokenExpiresAt: { $gt: Date.now() },
-  });
-
-  if (!user) return next(new AppError('Token is invalid or expired!', 401));
-
-  const accessToken = signToken(
-    user._id,
-    process.env.JWT_ACCESS_SECRET,
-    process.env.ACCESS_EXPIRES_IN
-  );
-
-  const newRefreshToken = signToken(
-    user._id,
-    process.env.JWT_REFRESH_SECRET,
-    process.env.REFRESH_EXPIRES_IN
-  );
-
-  const refreshTokenExpiry = ms(process.env.REFRESH_EXPIRES_IN);
-
-  await user.setRefreshToken(newRefreshToken, refreshTokenExpiry);
-
-  user.password = undefined;
-  user.refreshToken = undefined;
-  user.refreshTokenExpiresAt = undefined;
-
   res.status(200).json({
     status: 'success',
     accessToken,
-    refreshToken: newRefreshToken,
-    message: 'Tokens refreshed successfully',
+    message: 'Access token sent successfully',
   });
 });
 
