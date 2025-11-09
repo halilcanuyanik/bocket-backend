@@ -126,42 +126,58 @@ exports.login = catchAsync(async (req, res, next) => {
   res.status(200).json({ status: 'success', accessToken, data: user });
 });
 
-exports.loginMobile = catchAsync(async (req, res, next) => {
+exports.loginAll = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
-  if (!email || !password) {
-    return next(new AppError('Please provide email and password!', 400));
-  }
+  if (!email || !password)
+    return next(new AppError('Please provide email and password', 400));
 
   const user = await User.findOne({ email }).select('+password');
-
-  if (!user || !(await user.isPasswordCorrect(password, user.password))) {
-    return next(new AppError('Incorrect email or password!', 404));
-  }
+  if (!user || !(await user.isPasswordCorrect(password, user.password)))
+    return next(new AppError('Incorrect email or password', 404));
 
   const refreshToken = signToken(
     user._id,
     process.env.JWT_REFRESH_SECRET,
     process.env.REFRESH_EXPIRES_IN
   );
-
   const accessToken = signToken(
     user._id,
     process.env.JWT_ACCESS_SECRET,
     process.env.ACCESS_EXPIRES_IN
   );
-
   const refreshTokenExpiry = ms(process.env.REFRESH_EXPIRES_IN);
 
   await user.setRefreshToken(refreshToken, refreshTokenExpiry);
+
+  const userAgent = req.headers['user-agent'] || '';
+
+  const isMobile =
+    /mobile|android|iphone|ipad|ios|reactnative|okhttp/i.test(userAgent) ||
+    req.headers['X-Device-Type'] === 'Mobile';
 
   user.password = undefined;
   user.refreshToken = undefined;
   user.refreshTokenExpiresAt = undefined;
 
+  if (isMobile) {
+    return res.status(200).json({
+      status: 'success',
+      accessToken,
+      refreshToken,
+      data: user,
+    });
+  }
+
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'None',
+    maxAge: refreshTokenExpiry,
+  });
+
   res.status(200).json({
     status: 'success',
     accessToken,
-    refreshToken,
     data: user,
   });
 });
