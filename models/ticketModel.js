@@ -7,9 +7,9 @@ const ticketSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
-    instanceId: {
+    eventId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'EventInstance',
+      ref: 'Event',
       required: true,
     },
     seatNumber: {

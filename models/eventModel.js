@@ -1,74 +1,92 @@
 const mongoose = require('mongoose');
 
-const eventSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: [true, 'An event must have a title'],
-    trim: true,
-  },
-  description: {
-    type: String,
-    trim: true,
-  },
-  category: {
-    type: String,
-    enum: {
-      values: ['concert', 'theatre', 'festival', 'stand up', 'gala', 'other'],
-      message:
-        'The category should be either concert, theatre, festival, stand up, gala and other',
+const eventSchema = new mongoose.Schema(
+  {
+    showId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Event',
+      required: true,
+      index: true,
     },
-    required: [true, 'An event must have a category'],
-    select: false,
+    venueId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Venue',
+      required: true,
+      index: true,
+    },
+    startTime: {
+      type: Date,
+      required: true,
+    },
+    endTime: {
+      type: Date,
+      required: false,
+      validate: {
+        validator: function (val) {
+          return !val || val > this.startTime;
+        },
+        message: 'End time must be after the start time',
+      },
+    },
+    availableTickets: {
+      type: Number,
+      default: undefined,
+    },
+    pricing: {
+      _id: false,
+      base: {
+        type: Number,
+        required: true,
+        min: 0,
+      },
+      currency: {
+        type: String,
+        default: 'USD',
+      },
+    },
   },
-  coverImage: {
-    type: String,
-    default:
-      'https://raw.githubusercontent.com/halilcanuyanik/bocket-assets/main/eventCovers/default.png',
-  },
-  organizatorId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-    select: false,
-  },
-  approvedBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    select: false,
-  },
-  status: {
-    type: String,
-    enum: ['pending', 'approved', 'rejected'],
-    default: 'pending',
-    select: false,
-  },
-  performers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Performer' }],
-  averageRating: {
-    type: Number,
-    default: 0,
-  },
-  ratingCount: {
-    type: Number,
-    default: 0,
-  },
-  createdAt: {
-    type: Date,
-    select: false,
-  },
-  updatedAt: {
-    type: Date,
-    select: false,
-  },
+  {
+    timestamps: true,
+    toJSON: {
+      virtuals: true,
+      transform: (_, ret) => {
+        ret.show = ret.showId;
+        ret.venue = ret.venueId;
+        delete ret.showId;
+        delete ret.venueId;
+        return ret;
+      },
+    },
+  }
+);
+
+eventSchema.pre('save', async function (next) {
+  if (this.isNew && !this.availableTickets) {
+    const Venue = mongoose.model('Venue');
+    const venue = await Venue.findById(this.venueId).select('capacity');
+    if (!venue) return next(new AppError('Venue not found', 404));
+    this.availableTickets = venue.capacity;
+  }
+  next();
 });
 
 eventSchema.pre(/^find/, function (next) {
   this.populate({
-    path: 'performers',
-    select: 'name avatarImage',
+    path: 'showId',
+    populate: {
+      path: 'performers',
+      select: 'name',
+    },
+  }).populate({
+    path: 'venueId',
+    // select: 'name country city address capacity',
   });
   next();
 });
 
-const Event = new mongoose.model('Event', eventSchema);
+eventSchema.index({ showId: 1, startTime: 1 });
+eventSchema.index({ venueId: 1, startTime: 1 });
+
+const Event = mongoose.model('Event', eventSchema);
 
 module.exports = Event;

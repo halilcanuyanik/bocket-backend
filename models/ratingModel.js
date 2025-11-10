@@ -8,7 +8,7 @@ const ratingSchema = new mongoose.Schema({
   },
   targetType: {
     type: String,
-    enum: ['event', 'performer'],
+    enum: ['show', 'performer'],
     required: true,
   },
   targetId: {

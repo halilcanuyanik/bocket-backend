@@ -1,53 +1,37 @@
 const express = require('express');
 const authController = require('../controllers/authController');
+const showController = require('../controllers/showController');
 const eventController = require('../controllers/eventController');
-const eventInstanceController = require('../controllers/eventInstanceController');
 
 const router = express.Router();
 
 router
-  .route('/instances')
-  .get(eventInstanceController.getAllEventInstances)
+  .route('/events')
+  .get(eventController.getAllEvents)
   .post(
     authController.protect,
     authController.restrictTo('admin'),
-    eventInstanceController.createEventInstance
+    eventController.createEvent
   );
 
 router.get(
   '/upcomingEvents',
-  eventInstanceController.upcomingEvents,
-  eventInstanceController.getAllEventInstances
+  eventController.upcomingEvents,
+  eventController.getAllEvents
 );
 
 router.get(
   '/almostSoldOut',
-  eventInstanceController.almostSoldOut,
-  eventInstanceController.getAllEventInstances
+  eventController.almostSoldOut,
+  eventController.getAllEvents
 );
 
 router
-  .route('/topFiveRatedEvents')
-  .get(eventController.topFiveRatedEvents, eventController.getEvents);
+  .route('/topFiveRatedShows')
+  .get(eventController.topFiveRatedShows, eventController.getEvents);
 
 router
-  .route('/instances/:id')
-  .get(eventInstanceController.getEventInstance)
-  .patch(
-    authController.protect,
-    authController.restrictTo('admin'),
-    eventInstanceController.updateEventInstance
-  )
-  .delete(
-    authController.protect,
-    authController.restrictTo('admin'),
-    eventInstanceController.deleteEventInstance
-  );
-
-router.route('/:id/instances').get(eventInstanceController.getEventInstances);
-
-router
-  .route('/:id')
+  .route('/events/:id')
   .get(eventController.getEvent)
   .patch(
     authController.protect,
@@ -60,13 +44,29 @@ router
     eventController.deleteEvent
   );
 
+router.route('/:id/events').get(eventController.getEvents);
+
+router
+  .route('/:id')
+  .get(showController.getShow)
+  .patch(
+    authController.protect,
+    authController.restrictTo('admin'),
+    showController.updateShow
+  )
+  .delete(
+    authController.protect,
+    authController.restrictTo('admin'),
+    showController.deleteShow
+  );
+
 router
   .route('/')
-  .get(eventController.getEvents)
+  .get(showController.getShows)
   .post(
     authController.protect,
     authController.restrictTo('admin'),
-    eventController.createEvent
+    eventController.createShow
   );
 
 module.exports = router;

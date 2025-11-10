@@ -1,26 +1,168 @@
+const Show = require('../models/eventModel');
 const Event = require('../models/eventModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 
-exports.topFiveRatedEvents = (req, res, next) => {
-  req.query.limit = 5;
-  req.query.sort = '-averageRating,ratingCount';
+exports.upcomingShows = (req, res, next) => {
+  req.pipeline = [
+    { $match: { startTime: { $gte: new Date() } } },
+    { $sort: { startTime: 1 } },
+
+    {
+      $group: {
+        _id: '$eventId',
+        show: { $first: '$$ROOT' },
+      },
+    },
+    { $replaceRoot: { newRoot: '$show' } },
+
+    {
+      $lookup: {
+        from: 'shows',
+        localField: 'eventId',
+        foreignField: '_id',
+        as: 'eventId',
+      },
+    },
+    { $unwind: '$eventId' },
+
+    {
+      $lookup: {
+        from: 'performers',
+        localField: 'eventId.performers',
+        foreignField: '_id',
+        as: 'showPerformers',
+      },
+    },
+    {
+      $set: {
+        'eventId.performers': '$showPerformers',
+      },
+    },
+    { $unset: 'showPerformers' },
+
+    {
+      $lookup: {
+        from: 'venues',
+        localField: 'venueId',
+        foreignField: '_id',
+        as: 'venueId',
+      },
+    },
+    { $unwind: '$venueId' },
+
+    {
+      $addFields: {
+        show: '$eventId',
+        venue: '$venueId',
+      },
+    },
+    { $unset: ['eventId', 'venueId'] },
+
+    { $sort: { startTime: 1 } },
+    { $limit: 10 },
+  ];
   next();
 };
 
-exports.getEvents = catchAsync(async (req, res, next) => {
-  const features = new APIFeatures(req.query, Event.find())
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate();
+exports.almostSoldOut = (req, res, next) => {
+  req.pipeline = [
+    {
+      $lookup: {
+        from: 'venues',
+        localField: 'venueId',
+        foreignField: '_id',
+        as: 'venue',
+      },
+    },
+    { $unwind: '$venue' },
+    {
+      $addFields: {
+        fillRatio: {
+          $subtract: [1, { $divide: ['$availableTickets', '$venue.capacity'] }],
+        },
+      },
+    },
+    { $sort: { fillRatio: -1 } },
+    {
+      $group: {
+        _id: '$eventId',
+        show: { $first: '$$ROOT' },
+      },
+    },
+    { $replaceRoot: { newRoot: '$show' } },
+    { $sort: { fillRatio: -1 } },
+    { $limit: 10 },
 
-  const events = await features.monQuery;
+    {
+      $lookup: {
+        from: 'shows',
+        localField: 'eventId',
+        foreignField: '_id',
+        as: 'eventId',
+      },
+    },
+    { $unwind: '$eventId' },
 
-  if (!events) {
-    return next(new AppError('No event found!', 404));
+    {
+      $lookup: {
+        from: 'performers',
+        localField: 'eventId.performers',
+        foreignField: '_id',
+        as: 'showPerformers',
+      },
+    },
+    {
+      $set: {
+        'eventId.performers': '$showPerformers',
+      },
+    },
+    { $unset: 'showPerformers' },
+
+    {
+      $addFields: { show: '$eventId' },
+    },
+    { $unset: 'eventId' },
+  ];
+  next();
+};
+
+exports.getAllEvents = catchAsync(async (req, res, next) => {
+  let allEvents;
+
+  if (req.pipeline) {
+    allEvents = await Event.aggregate(req.pipeline);
+  } else {
+    const features = new APIFeatures(req.query, Event.find())
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+    allEvents = await features.monQuery;
   }
+
+  if (!allEvents || allEvents.length === 0)
+    return next(new AppError('No event found', 404));
+
+  res.status(200).json({ status: 'success', data: allEvents });
+});
+
+exports.getEvents = catchAsync(async (req, res, next) => {
+  const showId = req.params.id;
+
+  const show = await Show.findById(showId);
+
+  if (!show) {
+    return next(new AppError('No show found!', 404));
+  }
+
+  const events = await Event.find({ showId });
+
+  if (!events.length) {
+    return next(new AppError('No event found for this show!', 404));
+  }
+
   res.status(200).json({ status: 'success', data: events });
 });
 
@@ -35,15 +177,21 @@ exports.getEvent = catchAsync(async (req, res, next) => {
 });
 
 exports.createEvent = catchAsync(async (req, res, next) => {
+  const show = await Show.findById(req.body.showId);
+
+  if (!show) {
+    return next(new AppError('Show not found!', 404));
+  }
+
   const newEvent = await Event.create({
-    title: req.body.title,
-    description: req.body.description,
-    category: req.body.category,
-    coverImage: req.body.coverImage,
-    organizerId: req.body.organizerId,
-    approvedBy: req.body.approvedBy,
-    status: req.body.status,
-    performers: req.body.performers,
+    showId: req.body.showId,
+    venueId: req.body.venueId,
+    startTime: req.body.startTime,
+    endTime: req.body.endTime,
+    pricing: {
+      base: req.body.pricing?.base,
+      currency: req.body.pricing?.currency,
+    },
   });
 
   res.status(201).json({ status: 'success', data: newEvent });
@@ -53,39 +201,30 @@ exports.updateEvent = catchAsync(async (req, res, next) => {
   const updatedEvent = await Event.findByIdAndUpdate(
     req.params.id,
     {
-      title: req.body.title,
-      description: req.body.description,
-      category: req.body.category,
-      coverImage: req.body.coverImage,
-      organizerId: req.body.organizerId,
-      approvedBy: req.body.approvedBy,
-      status: req.body.status,
-      performers: req.body.performers,
+      showId: req.body.showId,
+      venueId: req.body.venueId,
+      startTime: req.body.startTime,
+      endTime: req.body.endTime,
+      pricing: {
+        base: req.body.pricing?.base,
+        currency: req.body.pricing?.currency,
+      },
     },
-    {
-      runValidators: true,
-      new: true,
-    }
+    { new: true, runValidators: true }
   );
 
-  if (!updatedEvent) {
-    return next(new AppError('Event not found!', 404));
-  }
+  if (!updatedEvent)
+    return next(new AppError('Event instance not found!', 404));
 
   res.status(200).json({ status: 'success', data: updatedEvent });
 });
 
 exports.deleteEvent = catchAsync(async (req, res, next) => {
-  const eventId = req.params.id;
+  const deletedEvent = await Event.findByIdAndDelete(req.params.id);
 
-  const event = await Event.findById(eventId);
-
-  if (!event) {
-    return next(new AppError('Event not found!', 404));
+  if (!deletedEvent) {
+    return next(new AppError('No event found!', 404));
   }
-
-  await EventInstance.deleteMany({ eventId });
-  await event.deleteOne();
 
   res.status(204).json({ status: 'success', data: null });
 });
