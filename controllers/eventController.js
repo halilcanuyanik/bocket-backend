@@ -150,6 +150,7 @@ exports.search = catchAsync(async (req, res, next) => {
         _id: 1,
         startTime: 1,
         endTime: 1,
+        'show.coverImage': 1,
         'show.title': 1,
         'venue.name': 1,
         'performers.name': 1,
