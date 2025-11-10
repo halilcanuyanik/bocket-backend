@@ -100,6 +100,71 @@ exports.almostSoldOut = (req, res, next) => {
   next();
 };
 
+exports.search = catchAsync(async (req, res, next) => {
+  const { query } = req.query;
+
+  if (!query || query.trim() === '') {
+    return next(new AppError('Query is required', 400));
+  }
+
+  const regex = new RegExp(query, 'i');
+
+  const events = await Event.aggregate([
+    {
+      $lookup: {
+        from: 'shows',
+        localField: 'showId',
+        foreignField: '_id',
+        as: 'show',
+      },
+    },
+    { $unwind: '$show' },
+    {
+      $lookup: {
+        from: 'venues',
+        localField: 'venueId',
+        foreignField: '_id',
+        as: 'venue',
+      },
+    },
+    { $unwind: '$venue' },
+    {
+      $lookup: {
+        from: 'performers',
+        localField: 'show.performers',
+        foreignField: '_id',
+        as: 'performers',
+      },
+    },
+    {
+      $match: {
+        $or: [
+          { 'show.title': { $regex: regex } },
+          { 'venue.name': { $regex: regex } },
+          { 'performers.name': { $regex: regex } },
+        ],
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        startTime: 1,
+        endTime: 1,
+        'show.title': 1,
+        'venue.name': 1,
+        'performers.name': 1,
+        pricing: 1,
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    results: events.length,
+    data: events,
+  });
+});
+
 exports.getAllEvents = catchAsync(async (req, res, next) => {
   let allEvents;
 

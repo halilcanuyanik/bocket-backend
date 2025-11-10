@@ -5,6 +5,8 @@ const eventController = require('../controllers/eventController');
 
 const router = express.Router();
 
+router.route('/search').get(eventController.search);
+
 router
   .route('/events')
   .get(eventController.getAllEvents)
