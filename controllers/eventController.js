@@ -4,7 +4,7 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 
-exports.upcomingShows = (req, res, next) => {
+exports.upcoming = (req, res, next) => {
   req.pipeline = [
     { $match: { startTime: { $gte: new Date() } } },
     { $sort: { startTime: 1 } },

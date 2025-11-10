@@ -14,11 +14,7 @@ router
     eventController.createEvent
   );
 
-router.get(
-  '/upcomingEvents',
-  eventController.upcomingEvents,
-  eventController.getAllEvents
-);
+router.get('/upcoming', eventController.upcoming, eventController.getAllEvents);
 
 router.get(
   '/almostSoldOut',
@@ -27,8 +23,8 @@ router.get(
 );
 
 router
-  .route('/topFiveRatedShows')
-  .get(eventController.topFiveRatedShows, eventController.getEvents);
+  .route('/topFiveRated')
+  .get(showController.topFiveRated, showController.getShows);
 
 router
   .route('/events/:id')
@@ -66,7 +62,7 @@ router
   .post(
     authController.protect,
     authController.restrictTo('admin'),
-    eventController.createShow
+    showController.createShow
   );
 
 module.exports = router;

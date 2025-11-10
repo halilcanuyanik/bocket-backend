@@ -3,7 +3,7 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 
-exports.topFiveRatedShows = (req, res, next) => {
+exports.topFiveRated = (req, res, next) => {
   req.query.limit = 5;
   req.query.sort = '-averageRating,ratingCount';
   next();
