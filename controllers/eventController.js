@@ -131,9 +131,12 @@ exports.search = catchAsync(async (req, res, next) => {
     {
       $lookup: {
         from: 'performers',
-        localField: 'show.performers',
-        foreignField: '_id',
-        as: 'performers',
+        let: { performerIds: '$show.performers' },
+        pipeline: [
+          { $match: { $expr: { $in: ['$_id', '$$performerIds'] } } },
+          { $project: { _id: 0, name: 1 } },
+        ],
+        as: 'show.performers',
       },
     },
     {
@@ -141,7 +144,7 @@ exports.search = catchAsync(async (req, res, next) => {
         $or: [
           { 'show.title': { $regex: regex } },
           { 'venue.name': { $regex: regex } },
-          { 'performers.name': { $regex: regex } },
+          { 'show.performers.name': { $regex: regex } },
         ],
       },
     },
@@ -153,7 +156,7 @@ exports.search = catchAsync(async (req, res, next) => {
         'show.coverImage': 1,
         'show.title': 1,
         'venue.name': 1,
-        'performers.name': 1,
+        'show.performers.name': 1,
         pricing: 1,
       },
     },
