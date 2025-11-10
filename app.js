@@ -13,7 +13,7 @@ const qs = require('qs');
 app.set('query parser', (str) => qs.parse(str));
 
 const userRouter = require('./routes/userRoutes');
-const eventRouter = require('./routes/eventRoutes');
+const showRouter = require('./routes/showRoutes');
 const performerRouter = require('./routes/performerRoutes');
 const venueRouter = require('./routes/venueRoutes');
 
@@ -48,7 +48,7 @@ const limiter = rateLimit({
 app.use('/', limiter);
 
 app.use('/users', userRouter);
-app.use('/events', eventRouter);
+app.use('/shows', showRouter);
 app.use('/performers', performerRouter);
 app.use('/venues', venueRouter);
 
