@@ -6,60 +6,45 @@ const APIFeatures = require('../utils/apiFeatures');
 
 exports.upcoming = (req, res, next) => {
   req.pipeline = [
-    { $match: { startTime: { $gte: new Date() } } },
-    { $sort: { startTime: 1 } },
-
     {
-      $group: {
-        _id: '$eventId',
-        show: { $first: '$$ROOT' },
+      $match: {
+        startTime: { $gte: new Date() },
       },
     },
-    { $replaceRoot: { newRoot: '$show' } },
-
+    { $sort: { startTime: 1 } },
+    {
+      $group: {
+        _id: '$showId',
+        event: { $first: '$$ROOT' },
+      },
+    },
+    { $replaceRoot: { newRoot: '$event' } },
     {
       $lookup: {
         from: 'shows',
-        localField: 'eventId',
+        localField: 'showId',
         foreignField: '_id',
-        as: 'eventId',
+        as: 'show',
       },
     },
-    { $unwind: '$eventId' },
-
+    { $unwind: '$show' },
     {
       $lookup: {
         from: 'performers',
-        localField: 'eventId.performers',
+        localField: 'show.performers',
         foreignField: '_id',
-        as: 'showPerformers',
+        as: 'show.performers',
       },
     },
-    {
-      $set: {
-        'eventId.performers': '$showPerformers',
-      },
-    },
-    { $unset: 'showPerformers' },
-
     {
       $lookup: {
         from: 'venues',
         localField: 'venueId',
         foreignField: '_id',
-        as: 'venueId',
+        as: 'venue',
       },
     },
-    { $unwind: '$venueId' },
-
-    {
-      $addFields: {
-        show: '$eventId',
-        venue: '$venueId',
-      },
-    },
-    { $unset: ['eventId', 'venueId'] },
-
+    { $unwind: '$venue' },
     { $sort: { startTime: 1 } },
     { $limit: 10 },
   ];
@@ -87,43 +72,30 @@ exports.almostSoldOut = (req, res, next) => {
     { $sort: { fillRatio: -1 } },
     {
       $group: {
-        _id: '$eventId',
-        show: { $first: '$$ROOT' },
+        _id: '$showId',
+        event: { $first: '$$ROOT' },
       },
     },
-    { $replaceRoot: { newRoot: '$show' } },
-    { $sort: { fillRatio: -1 } },
-    { $limit: 10 },
-
+    { $replaceRoot: { newRoot: '$event' } },
     {
       $lookup: {
         from: 'shows',
-        localField: 'eventId',
+        localField: 'showId',
         foreignField: '_id',
-        as: 'eventId',
+        as: 'show',
       },
     },
-    { $unwind: '$eventId' },
-
+    { $unwind: '$show' },
     {
       $lookup: {
         from: 'performers',
-        localField: 'eventId.performers',
+        localField: 'show.performers',
         foreignField: '_id',
-        as: 'showPerformers',
+        as: 'show.performers',
       },
     },
-    {
-      $set: {
-        'eventId.performers': '$showPerformers',
-      },
-    },
-    { $unset: 'showPerformers' },
-
-    {
-      $addFields: { show: '$eventId' },
-    },
-    { $unset: 'eventId' },
+    { $sort: { fillRatio: -1 } },
+    { $limit: 10 },
   ];
   next();
 };
