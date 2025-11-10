@@ -4,7 +4,7 @@ const eventSchema = new mongoose.Schema(
   {
     showId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Event',
+      ref: 'Show',
       required: true,
       index: true,
     },
