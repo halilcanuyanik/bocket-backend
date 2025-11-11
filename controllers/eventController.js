@@ -1,4 +1,4 @@
-const Show = require('../models/eventModel');
+const Show = require('../models/showModel');
 const Event = require('../models/eventModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
