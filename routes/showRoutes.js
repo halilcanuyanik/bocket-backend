@@ -16,6 +16,10 @@ router
     eventController.createEvent
   );
 
+router
+  .route('/topRated')
+  .get(eventController.topRated, eventController.getAllEvents);
+
 router.get('/upcoming', eventController.upcoming, eventController.getAllEvents);
 
 router.get(
@@ -23,10 +27,6 @@ router.get(
   eventController.almostSoldOut,
   eventController.getAllEvents
 );
-
-router
-  .route('/topFiveRated')
-  .get(showController.topFiveRated, showController.getShows);
 
 router
   .route('/events/:id')

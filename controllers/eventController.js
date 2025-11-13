@@ -4,6 +4,64 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 
+exports.topRated = (req, res, next) => {
+  req.pipeline = [
+    {
+      $lookup: {
+        from: 'shows',
+        localField: 'showId',
+        foreignField: '_id',
+        as: 'show',
+      },
+    },
+    { $unwind: '$show' },
+    {
+      $sort: {
+        'show.averageRating': -1,
+        'show.ratingCount': 1,
+      },
+    },
+    {
+      $group: {
+        _id: '$show._id',
+        event: { $first: '$$ROOT' },
+      },
+    },
+    {
+      $replaceRoot: { newRoot: '$event' },
+    },
+    {
+      $lookup: {
+        from: 'venues',
+        localField: 'venueId',
+        foreignField: '_id',
+        as: 'venue',
+      },
+    },
+    { $unwind: '$venue' },
+    {
+      $lookup: {
+        from: 'performers',
+        localField: 'show.performers',
+        foreignField: '_id',
+        as: 'show.performers',
+      },
+    },
+    {
+      $project: {
+        'show.category': 0,
+        'show.organizatorId': 0,
+        'show.approvedBy': 0,
+        'show.status': 0,
+        'show.createdAt': 0,
+        'show.updatedAt': 0,
+        'venue.__v': 0,
+      },
+    },
+  ];
+  next();
+};
+
 exports.upcoming = (req, res, next) => {
   req.pipeline = [
     {

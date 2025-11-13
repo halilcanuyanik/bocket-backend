@@ -3,12 +3,6 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 
-exports.topFiveRated = (req, res, next) => {
-  req.query.limit = 5;
-  req.query.sort = '-averageRating,ratingCount';
-  next();
-};
-
 exports.getShows = catchAsync(async (req, res, next) => {
   const features = new APIFeatures(req.query, Show.find())
     .filter()
