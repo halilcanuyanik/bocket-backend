@@ -47,17 +47,17 @@ exports.topRated = (req, res, next) => {
         as: 'show.performers',
       },
     },
-    {
-      $project: {
-        'show.category': 0,
-        'show.organizatorId': 0,
-        'show.approvedBy': 0,
-        'show.status': 0,
-        'show.createdAt': 0,
-        'show.updatedAt': 0,
-        'venue.__v': 0,
-      },
-    },
+    // {
+    //   $project: {
+    //     'show.category': 0,
+    //     'show.organizatorId': 0,
+    //     'show.approvedBy': 0,
+    //     'show.status': 0,
+    //     'show.createdAt': 0,
+    //     'show.updatedAt': 0,
+    //     'venue.__v': 0,
+    //   },
+    // },
   ];
   next();
 };
