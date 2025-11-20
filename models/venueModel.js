@@ -1,13 +1,65 @@
 const mongoose = require('mongoose');
 
-const seatSchema = new mongoose.Schema({
-  row: String,
-  seatNumber: Number,
-  available: {
-    type: Boolean,
-    default: true,
+const seatSchema = new mongoose.Schema(
+  {
+    id: {
+      type: String,
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: ['available', 'taken', 'blocked'],
+      required: true,
+    },
   },
-});
+  { _id: false }
+);
+
+const groupSchema = new mongoose.Schema(
+  {
+    id: {
+      type: String,
+      required: true,
+    },
+    x: {
+      type: Number,
+      required: true,
+    },
+    y: {
+      type: Number,
+      required: true,
+    },
+    grid: {
+      type: [[seatSchema]],
+      required: true,
+    },
+  },
+  { _id: false }
+);
+
+const SeatMapSchema = new mongoose.Schema(
+  {
+    stage: {
+      x: {
+        type: Number,
+        required: true,
+        min: 0,
+      },
+      y: {
+        type: Number,
+        required: true,
+        min: 0,
+      },
+      width: { type: Number, required: true, min: 0 },
+      height: { type: Number, required: true, min: 0 },
+    },
+    groups: {
+      type: [groupSchema],
+      default: [],
+    },
+  },
+  { _id: false }
+);
 
 const venueSchema = new mongoose.Schema({
   name: {
@@ -35,8 +87,7 @@ const venueSchema = new mongoose.Schema({
     default: false,
   },
   seatMap: {
-    type: [seatSchema],
-    default: undefined,
+    type: SeatMapSchema,
   },
   capacity: {
     type: Number,
