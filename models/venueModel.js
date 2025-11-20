@@ -37,7 +37,7 @@ const groupSchema = new mongoose.Schema(
   { _id: false }
 );
 
-const SeatMapSchema = new mongoose.Schema(
+const seatMapSchema = new mongoose.Schema(
   {
     stage: {
       x: {
@@ -87,7 +87,7 @@ const venueSchema = new mongoose.Schema({
     default: false,
   },
   seatMap: {
-    type: SeatMapSchema,
+    type: seatMapSchema,
   },
   capacity: {
     type: Number,
