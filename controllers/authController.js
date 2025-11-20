@@ -186,9 +186,7 @@ exports.restrictTo = (...roles) => {
 };
 
 exports.verify = catchAsync(async (req, res, next) => {
-  res
-    .status(200)
-    .json({ status: 'success', message: 'The user verified successfully!' });
+  res.status(200).json({ status: 'success', data: req.user });
 });
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
