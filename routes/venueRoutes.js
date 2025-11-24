@@ -13,6 +13,8 @@ router
     venueController.createVenue
   );
 
+router.route('/search').get(venueController.search);
+
 router
   .route('/:id')
   .get(venueController.getVenue)

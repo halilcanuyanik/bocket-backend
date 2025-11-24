@@ -3,6 +3,30 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 
+exports.search = catchAsync(async (req, res, next) => {
+  const { query } = req.query;
+
+  if (!query || query.trim() === '') {
+    return next(new AppError('Query is required', 400));
+  }
+
+  const regex = new RegExp(query, 'i');
+
+  const venues = await Venue.aggregate([
+    {
+      $match: { name: { $regex: regex } },
+    },
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    results: venues.length,
+    data: {
+      venues,
+    },
+  });
+});
+
 exports.getVenues = catchAsync(async (req, res, next) => {
   const features = new APIFeatures(req.query, Venue.find())
     .filter()
