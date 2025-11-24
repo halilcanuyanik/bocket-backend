@@ -21,9 +21,7 @@ exports.search = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     results: venues.length,
-    data: {
-      venues,
-    },
+    data: venues,
   });
 });
 
