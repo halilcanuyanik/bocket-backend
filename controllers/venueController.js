@@ -14,7 +14,14 @@ exports.search = catchAsync(async (req, res, next) => {
 
   const venues = await Venue.aggregate([
     {
-      $match: { name: { $regex: regex } },
+      $match: {
+        $or: [
+          { name: { $regex: regex } },
+          { address: { $regex: regex } },
+          { city: { $regex: regex } },
+          { country: { $regex: regex } },
+        ],
+      },
     },
   ]);
 
