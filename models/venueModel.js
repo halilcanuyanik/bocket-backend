@@ -82,10 +82,6 @@ const venueSchema = new mongoose.Schema({
     required: true,
     index: true,
   },
-  hasSeatMap: {
-    type: Boolean,
-    default: false,
-  },
   seatMap: {
     type: seatMapSchema,
   },

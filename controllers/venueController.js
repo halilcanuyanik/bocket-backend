@@ -80,7 +80,6 @@ exports.updateVenue = catchAsync(async (req, res, next) => {
       address: req.body.address,
       city: req.body.city,
       country: req.body.country,
-      hasSeatMap: req.body.hasSeatMap,
       seatMap: req.body.seatMap,
       capacity: req.body.capacity,
     },
@@ -89,6 +88,12 @@ exports.updateVenue = catchAsync(async (req, res, next) => {
       new: true,
     }
   );
+
+  if (!updatedVenue) {
+    return next(new AppError('Venue not found!', 404));
+  }
+
+  res.status(200).json({ status: 'success', data: updatedVenue });
 });
 
 exports.deleteVenue = catchAsync(async (req, res, next) => {
