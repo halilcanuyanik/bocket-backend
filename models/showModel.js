@@ -26,23 +26,6 @@ const showSchema = new mongoose.Schema(
       default:
         'https://raw.githubusercontent.com/halilcanuyanik/bocket-assets/main/showCovers/default.png',
     },
-    organizatorId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-      select: false,
-    },
-    approvedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      select: false,
-    },
-    status: {
-      type: String,
-      enum: ['pending', 'approved', 'rejected'],
-      default: 'pending',
-      select: false,
-    },
     performers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Performer' }],
     averageRating: {
       type: Number,

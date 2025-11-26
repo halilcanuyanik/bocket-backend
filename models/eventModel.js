@@ -14,6 +14,9 @@ const eventSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
+    eventSeatMap: {
+      type: mongoose.Schema.Types.Mixed,
+    },
     startTime: {
       type: Date,
       required: true,

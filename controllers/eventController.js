@@ -1,5 +1,6 @@
 const Show = require('../models/showModel');
 const Event = require('../models/eventModel');
+const Venue = require('../models/venueModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
@@ -47,17 +48,6 @@ exports.topRated = (req, res, next) => {
         as: 'show.performers',
       },
     },
-    // {
-    //   $project: {
-    //     'show.category': 0,
-    //     'show.organizatorId': 0,
-    //     'show.approvedBy': 0,
-    //     'show.status': 0,
-    //     'show.createdAt': 0,
-    //     'show.updatedAt': 0,
-    //     'venue.__v': 0,
-    //   },
-    // },
   ];
   next();
 };
@@ -282,9 +272,18 @@ exports.createEvent = catchAsync(async (req, res, next) => {
     return next(new AppError('Show not found!', 404));
   }
 
+  const venue = await Venue.findById(req.body.venueId).lean();
+
+  if (!venue) {
+    return next(new AppError('Venue not found!', 404));
+  }
+
+  const eventSeatMap = JSON.parse(JSON.stringify(venue.seatMap));
+
   const newEvent = await Event.create({
     showId: req.body.showId,
-    venueId: req.body.venueId,
+    venueId: venue._id,
+    eventSeatMap,
     startTime: req.body.startTime,
     endTime: req.body.endTime,
     pricing: {
