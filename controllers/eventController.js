@@ -296,11 +296,26 @@ exports.createEvent = catchAsync(async (req, res, next) => {
 });
 
 exports.updateEvent = catchAsync(async (req, res, next) => {
+  const show = await Show.findById(req.body.showId);
+
+  if (!show) {
+    return next(new AppError('Show not found!', 404));
+  }
+
+  const venue = await Venue.findById(req.body.venueId).lean();
+
+  if (!venue) {
+    return next(new AppError('Venue not found!', 404));
+  }
+
+  const eventSeatMap = JSON.parse(JSON.stringify(venue.seatMap));
+
   const updatedEvent = await Event.findByIdAndUpdate(
     req.params.id,
     {
       showId: req.body.showId,
       venueId: req.body.venueId,
+      eventSeatMap,
       startTime: req.body.startTime,
       endTime: req.body.endTime,
       pricing: {
@@ -311,8 +326,7 @@ exports.updateEvent = catchAsync(async (req, res, next) => {
     { new: true, runValidators: true }
   );
 
-  if (!updatedEvent)
-    return next(new AppError('Event instance not found!', 404));
+  if (!updatedEvent) return next(new AppError('Event not found!', 404));
 
   res.status(200).json({ status: 'success', data: updatedEvent });
 });
