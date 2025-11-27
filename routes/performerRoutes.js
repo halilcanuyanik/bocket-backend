@@ -5,6 +5,14 @@ const authController = require('../controllers/authController');
 const router = express.Router();
 
 router
+  .route('/search')
+  .get(
+    authController.protect,
+    authController.restrictTo('admin'),
+    performerController.search
+  );
+
+router
   .route('/')
   .get(performerController.getPerformers)
   .post(

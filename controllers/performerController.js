@@ -3,6 +3,30 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 
+exports.search = catchAsync(async (req, res, next) => {
+  const { query } = req.query;
+
+  if (!query || query.trim() === '') {
+    return next(new AppError('Query is required', 400));
+  }
+
+  const regex = new RegExp(query, 'i');
+
+  const performers = await Performer.aggregate([
+    {
+      $match: {
+        name: { $regex: regex },
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    results: performers.length,
+    data: performers,
+  });
+});
+
 exports.getPerformers = catchAsync(async (req, res, next) => {
   const features = new APIFeatures(req.query, Performer.find())
     .filter()

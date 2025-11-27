@@ -5,6 +5,14 @@ const authController = require('../controllers/authController');
 const router = express.Router();
 
 router
+  .route('/search')
+  .get(
+    authController.protect,
+    authController.restrictTo('admin'),
+    venueController.search
+  );
+
+router
   .route('/')
   .get(venueController.getVenues)
   .post(
@@ -12,8 +20,6 @@ router
     authController.restrictTo('admin'),
     venueController.createVenue
   );
-
-router.route('/search').get(venueController.search);
 
 router
   .route('/:id')
