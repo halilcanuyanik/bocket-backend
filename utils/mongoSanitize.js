@@ -7,11 +7,19 @@ const githubRawPattern =
 
 module.exports = () => {
   return (req, res, next) => {
-    const original = { ...req.body };
+    const original = {
+      ...req.body,
+      coverImage: req.body.coverImage,
+      avatarImage: req.body.avatarImage,
+      startTime: req.body.startTime,
+      endTime: req.body.endTime,
+    };
 
     mongoSanitize(req, res, () => {
       req.body.coverImage = original.coverImage;
       req.body.avatarImage = original.avatarImage;
+      req.body.startTime = original.startTime;
+      req.body.endTime = original.endTime;
 
       ['coverImage', 'avatarImage'].forEach((field) => {
         ['body', 'query', 'params'].forEach((loc) => {
@@ -20,10 +28,17 @@ module.exports = () => {
             return next(
               new AppError(`${field} must be a valid GitHub raw URL`, 400)
             );
-            // req[loc][field] = null;
           }
         });
       });
+
+      ['startTime', 'endTime'].forEach((field) => {
+        const val = req.body[field];
+        if (val && isNaN(Date.parse(val))) {
+          return next(new AppError(`${field} must be valid ISO date`, 400));
+        }
+      });
+
       next();
     });
   };
