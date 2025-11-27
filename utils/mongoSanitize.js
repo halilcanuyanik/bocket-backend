@@ -1,4 +1,5 @@
 const expressMongoSanitize = require('@exortek/express-mongo-sanitize');
+const AppError = require('../utils/appError');
 
 const mongoSanitize = expressMongoSanitize();
 const githubRawPattern =

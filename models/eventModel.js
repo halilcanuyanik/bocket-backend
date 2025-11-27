@@ -1,5 +1,20 @@
 const mongoose = require('mongoose');
 
+const pricingSchema = new mongoose.Schema(
+  {
+    base: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    currency: {
+      type: String,
+      default: 'USD',
+    },
+  },
+  { _id: false }
+);
+
 const eventSchema = new mongoose.Schema(
   {
     showId: {
@@ -26,7 +41,8 @@ const eventSchema = new mongoose.Schema(
       required: false,
       validate: {
         validator: function (val) {
-          return !val || val > this.startTime;
+          if (!val || !this.startTime) return true;
+          return new Date(val).getTime() > new Date(this.startTime).getTime();
         },
         message: 'End time must be after the start time',
       },
@@ -35,18 +51,7 @@ const eventSchema = new mongoose.Schema(
       type: Number,
       default: undefined,
     },
-    pricing: {
-      _id: false,
-      base: {
-        type: Number,
-        required: true,
-        min: 0,
-      },
-      currency: {
-        type: String,
-        default: 'USD',
-      },
-    },
+    pricing: pricingSchema,
   },
   {
     timestamps: true,
