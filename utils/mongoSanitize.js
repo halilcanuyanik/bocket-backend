@@ -1,5 +1,4 @@
 const expressMongoSanitize = require('@exortek/express-mongo-sanitize');
-const AppError = require('../utils/appError');
 
 const mongoSanitize = expressMongoSanitize();
 const githubRawPattern =
@@ -7,36 +6,54 @@ const githubRawPattern =
 
 module.exports = () => {
   return (req, res, next) => {
-    const original = {
-      ...req.body,
-      coverImage: req.body.coverImage,
-      avatarImage: req.body.avatarImage,
-      startTime: req.body.startTime,
-      endTime: req.body.endTime,
-    };
-
-    mongoSanitize(req, res, () => {
-      req.body.coverImage = original.coverImage;
-      req.body.avatarImage = original.avatarImage;
-      req.body.startTime = original.startTime;
-      req.body.endTime = original.endTime;
-
+    try {
       ['coverImage', 'avatarImage'].forEach((field) => {
         ['body', 'query', 'params'].forEach((loc) => {
           const val = req[loc]?.[field];
           if (val && !githubRawPattern.test(val)) {
-            return next(
-              new AppError(`${field} must be a valid GitHub raw URL`, 400)
-            );
+            throw new AppError(`${field} must be a valid GitHub raw URL`, 400);
           }
         });
       });
+    } catch (error) {
+      return next(error);
+    }
 
-      ['startTime', 'endTime'].forEach((field) => {
-        const val = req.body[field];
-        if (val && isNaN(Date.parse(val))) {
-          return next(new AppError(`${field} must be valid ISO date`, 400));
-        }
+    const dateFields = ['startTime', 'endTime'];
+    const imageFields = ['coverImage', 'avatarImage'];
+    const savedValues = {};
+
+    ['body', 'query', 'params'].forEach((loc) => {
+      if (req[loc]) {
+        dateFields.forEach((field) => {
+          const val = req[loc][field];
+          if (
+            val &&
+            typeof val === 'string' &&
+            /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(val)
+          ) {
+            if (!savedValues[loc]) savedValues[loc] = {};
+            savedValues[loc][field] = val;
+          }
+        });
+
+        imageFields.forEach((field) => {
+          const val = req[loc][field];
+          if (val && typeof val === 'string' && githubRawPattern.test(val)) {
+            if (!savedValues[loc]) savedValues[loc] = {};
+            savedValues[loc][field] = val;
+          }
+        });
+      }
+    });
+
+    mongoSanitize(req, res, () => {
+      Object.keys(savedValues).forEach((loc) => {
+        Object.keys(savedValues[loc]).forEach((field) => {
+          if (req[loc]) {
+            req[loc][field] = savedValues[loc][field];
+          }
+        });
       });
 
       next();
