@@ -308,14 +308,14 @@ exports.updateEvent = catchAsync(async (req, res, next) => {
     return next(new AppError('Venue not found!', 404));
   }
 
-  const eventSeatMap = JSON.parse(JSON.stringify(venue.seatMap));
+  // const eventSeatMap = JSON.parse(JSON.stringify(venue.seatMap));
 
   const updatedEvent = await Event.findByIdAndUpdate(
     req.params.id,
     {
       showId: req.body.showId,
       venueId: req.body.venueId,
-      eventSeatMap,
+      eventSeatMap: req.body.eventSeatMap,
       startTime: req.body.startTime,
       endTime: req.body.endTime,
       pricing: {
