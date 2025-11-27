@@ -7,7 +7,12 @@ const githubRawPattern =
 
 module.exports = () => {
   return (req, res, next) => {
+    const original = { ...req.body };
+
     mongoSanitize(req, res, () => {
+      req.body.coverImage = original.coverImage;
+      req.body.avatarImage = original.avatarImage;
+
       ['coverImage', 'avatarImage'].forEach((field) => {
         ['body', 'query', 'params'].forEach((loc) => {
           const val = req[loc]?.[field];
