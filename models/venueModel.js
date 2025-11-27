@@ -8,7 +8,8 @@ const seatSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['available', 'taken', 'blocked'],
+      enum: ['available', 'occupied', 'booked', 'blocked', 'vip'],
+      default: 'available',
       required: true,
     },
   },
@@ -37,21 +38,33 @@ const groupSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const stageSchema = new mongoose.Schema(
+  {
+    x: { type: Number, required: true, min: 0 },
+    y: { type: Number, required: true, min: 0 },
+    width: { type: Number, required: true, min: 0 },
+    height: { type: Number, required: true, min: 0 },
+  },
+  { _id: false }
+);
+
+const metaSchema = new mongoose.Schema(
+  {
+    scale: { type: Number, default: 1 },
+    version: { type: String, default: '1.0' },
+  },
+  { _id: false }
+);
+
 const seatMapSchema = new mongoose.Schema(
   {
+    meta: {
+      type: metaSchema,
+      default: () => ({}),
+    },
     stage: {
-      x: {
-        type: Number,
-        required: true,
-        min: 0,
-      },
-      y: {
-        type: Number,
-        required: true,
-        min: 0,
-      },
-      width: { type: Number, required: true, min: 0 },
-      height: { type: Number, required: true, min: 0 },
+      type: stageSchema,
+      required: true,
     },
     groups: {
       type: [groupSchema],
@@ -89,6 +102,21 @@ const venueSchema = new mongoose.Schema({
     type: Number,
   },
 });
+
+// venueSchema.pre('save', function (next) {
+//   if (this.seatMap && this.seatMap.groups) {
+//     let totalSeats = 0;
+//     this.seatMap.groups.forEach((group) => {
+//       if (group.grid) {
+//         group.grid.forEach((row) => {
+//           totalSeats += row.length;
+//         });
+//       }
+//     });
+//     this.capacity = totalSeats;
+//   }
+//   next();
+// });
 
 venueSchema.index({ city: 1, name: 1 }, { unique: true });
 
