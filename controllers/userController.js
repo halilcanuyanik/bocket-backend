@@ -39,7 +39,9 @@ exports.getUsers = catchAsync(async (req, res, next) => {
   if (!users) {
     return next(new AppError('No user found!', 404));
   }
-  res.status(200).json({ status: 'success', data: users });
+  res
+    .status(200)
+    .json({ status: 'success', results: users.length, data: users });
 });
 
 exports.getUser = catchAsync(async (req, res, next) => {

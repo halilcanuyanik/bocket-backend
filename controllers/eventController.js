@@ -20,6 +20,7 @@ exports.topRated = (req, res, next) => {
       $sort: {
         'show.averageRating': -1,
         'show.ratingCount': 1,
+        _id: 1,
       },
     },
     {
@@ -234,7 +235,9 @@ exports.getAllEvents = catchAsync(async (req, res, next) => {
   if (!allEvents || allEvents.length === 0)
     return next(new AppError('No event found', 404));
 
-  res.status(200).json({ status: 'success', data: allEvents });
+  res
+    .status(200)
+    .json({ status: 'success', results: allEvents.length, data: allEvents });
 });
 
 exports.getEvents = catchAsync(async (req, res, next) => {
@@ -252,7 +255,9 @@ exports.getEvents = catchAsync(async (req, res, next) => {
     return next(new AppError('No event found for this show!', 404));
   }
 
-  res.status(200).json({ status: 'success', data: events });
+  res
+    .status(200)
+    .json({ status: 'success', results: events.length, data: events });
 });
 
 exports.getEvent = catchAsync(async (req, res, next) => {

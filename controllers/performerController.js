@@ -39,7 +39,9 @@ exports.getPerformers = catchAsync(async (req, res, next) => {
   if (!performers) {
     return next(new AppError('No performer found!', 404));
   }
-  res.status(200).json({ status: 'success', data: performers });
+  res
+    .status(200)
+    .json({ status: 'success', results: performers.length, data: performers });
 });
 
 exports.getPerformer = catchAsync(async (req, res, next) => {

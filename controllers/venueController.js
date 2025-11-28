@@ -45,7 +45,9 @@ exports.getVenues = catchAsync(async (req, res, next) => {
     return next(new AppError('No venue found!', 404));
   }
 
-  res.status(200).json({ status: 'success', data: venues });
+  res
+    .status(200)
+    .json({ status: 'success', results: venues.length, data: venues });
 });
 
 exports.getVenue = catchAsync(async (req, res, next) => {

@@ -15,7 +15,9 @@ exports.getShows = catchAsync(async (req, res, next) => {
   if (!shows) {
     return next(new AppError('No show found!', 404));
   }
-  res.status(200).json({ status: 'success', data: shows });
+  res
+    .status(200)
+    .json({ status: 'success', results: shows.length, data: shows });
 });
 
 exports.getShow = catchAsync(async (req, res, next) => {
