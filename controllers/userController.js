@@ -1,6 +1,7 @@
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const APIFeatures = require('../utils/apiFeatures');
 
 exports.search = catchAsync(async (req, res, next) => {
   const { query } = req.query;
@@ -35,7 +36,14 @@ exports.search = catchAsync(async (req, res, next) => {
 });
 
 exports.getUsers = catchAsync(async (req, res, next) => {
-  const users = await User.find();
+  const features = new APIFeatures(req.query, User.find())
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+
+  const users = await features.monQuery;
+
   if (!users) {
     return next(new AppError('No user found!', 404));
   }
