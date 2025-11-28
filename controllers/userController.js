@@ -15,7 +15,6 @@ exports.search = catchAsync(async (req, res, next) => {
   const users = await User.aggregate([
     {
       $match: {
-        // role: 'user',
         $or: [{ name: { $regex: regex } }, { email: { $regex: regex } }],
       },
     },
@@ -24,6 +23,7 @@ exports.search = catchAsync(async (req, res, next) => {
         _id: 1,
         email: 1,
         name: 1,
+        role: 1,
       },
     },
   ]);
