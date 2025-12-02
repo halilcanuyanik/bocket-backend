@@ -13,6 +13,14 @@ router
   );
 
 router
+  .route('/update-seatmap/:id')
+  .patch(
+    authController.protect,
+    authController.restrictTo('admin'),
+    venueController.updateSeatMap
+  );
+
+router
   .route('/')
   .get(venueController.getVenues)
   .post(

@@ -95,6 +95,24 @@ exports.updateVenue = catchAsync(async (req, res, next) => {
   res.status(200).json({ status: 'success', data: updatedVenue });
 });
 
+exports.updateSeatMap = catchAsync(async (req, res, next) => {
+  const updatedVenue = await Venue.findByIdAndUpdate(
+    req.params.id,
+    {
+      seatMap: req.body.seatMap,
+    },
+    {
+      new: true,
+    }
+  );
+
+  if (!updatedVenue) {
+    return next(new AppError('Venue not found!', 404));
+  }
+
+  res.status(200).json({ status: 'success', data: updatedVenue });
+});
+
 exports.deleteVenue = catchAsync(async (req, res, next) => {
   const venue = await Venue.findByIdAndDelete(req.params.id);
 
