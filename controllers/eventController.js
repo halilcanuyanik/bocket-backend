@@ -310,7 +310,7 @@ exports.createEvent = catchAsync(async (req, res, next) => {
 
   const newEvent = await Event.create({
     showId: req.body.showId,
-    venueId: venue._id,
+    venueId: req.body.venueId,
     eventSeatMap,
     startTime: req.body.startTime,
     endTime: req.body.endTime,
@@ -324,26 +324,9 @@ exports.createEvent = catchAsync(async (req, res, next) => {
 });
 
 exports.updateEvent = catchAsync(async (req, res, next) => {
-  const show = await Show.findById(req.body.showId);
-
-  if (!show) {
-    return next(new AppError('Show not found!', 404));
-  }
-
-  const venue = await Venue.findById(req.body.venueId).lean();
-
-  if (!venue) {
-    return next(new AppError('Venue not found!', 404));
-  }
-
-  // const eventSeatMap = JSON.parse(JSON.stringify(venue.seatMap));
-
   const updatedEvent = await Event.findByIdAndUpdate(
     req.params.id,
     {
-      showId: req.body.showId,
-      venueId: req.body.venueId,
-      eventSeatMap: req.body.eventSeatMap,
       startTime: req.body.startTime,
       endTime: req.body.endTime,
       pricing: {
@@ -351,13 +334,15 @@ exports.updateEvent = catchAsync(async (req, res, next) => {
         currency: req.body.pricing?.currency,
       },
     },
-    { new: true, runValidators: true }
+    { new: true }
   );
 
   if (!updatedEvent) return next(new AppError('Event not found!', 404));
 
   res.status(200).json({ status: 'success', data: updatedEvent });
 });
+
+exports.updateSeatMapPrice = catchAsync(async (req, res, next) => {});
 
 exports.deleteEvent = catchAsync(async (req, res, next) => {
   const deletedEvent = await Event.findByIdAndDelete(req.params.id);
