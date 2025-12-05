@@ -16,22 +16,43 @@ exports.topRated = (req, res, next) => {
       },
     },
     { $unwind: '$show' },
-    {
-      $sort: {
-        'show.averageRating': -1,
-        'show.ratingCount': 1,
-        _id: 1,
-      },
-    },
+
     {
       $group: {
         _id: '$show._id',
-        event: { $first: '$$ROOT' },
+        show: { $first: '$show' },
+        events: { $push: '$$ROOT' },
       },
     },
+
+    {
+      $sort: {
+        'show.averageRating': -1,
+        'show.ratingCount': -1,
+      },
+    },
+
+    {
+      $addFields: {
+        events: {
+          $sortArray: {
+            input: '$events',
+            sortBy: { date: 1, _id: 1 },
+          },
+        },
+      },
+    },
+
+    {
+      $addFields: {
+        event: { $arrayElemAt: ['$events', 0] },
+      },
+    },
+
     {
       $replaceRoot: { newRoot: '$event' },
     },
+
     {
       $lookup: {
         from: 'venues',
@@ -41,6 +62,7 @@ exports.topRated = (req, res, next) => {
       },
     },
     { $unwind: '$venue' },
+
     {
       $lookup: {
         from: 'performers',
@@ -50,6 +72,7 @@ exports.topRated = (req, res, next) => {
       },
     },
   ];
+
   next();
 };
 
