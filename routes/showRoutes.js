@@ -5,7 +5,15 @@ const eventController = require('../controllers/eventController');
 
 const router = express.Router();
 
-router.route('/search').get(eventController.search);
+router
+  .route('/search')
+  .get(
+    authController.protect,
+    authController.restrictTo('admin'),
+    showController.search
+  );
+
+router.route('/events/search').get(eventController.search);
 
 router
   .route('/events')

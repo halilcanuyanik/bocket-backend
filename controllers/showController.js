@@ -3,6 +3,36 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 
+exports.search = catchAsync(async (req, res, next) => {
+  const { query } = req.query;
+
+  if (!query || query.trim() === '') {
+    return next(new AppError('Query is required', 400));
+  }
+
+  const regex = new RegExp(query, 'i');
+
+  const shows = await Show.aggregate([
+    {
+      $lookup: {
+        from: 'performers',
+        localField: 'performers',
+        foreignField: '_id',
+        as: 'performers',
+      },
+    },
+    {
+      $match: {
+        $or: [{ title: regex }, { 'performers.name': regex }],
+      },
+    },
+  ]);
+
+  res
+    .status(200)
+    .json({ status: 'success', data: shows, results: shows.length });
+});
+
 exports.getShows = catchAsync(async (req, res, next) => {
   const features = new APIFeatures(req.query, Show.find())
     .filter()
