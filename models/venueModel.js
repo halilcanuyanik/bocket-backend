@@ -107,20 +107,39 @@ const venueSchema = new mongoose.Schema({
   },
 });
 
-// venueSchema.pre('save', function (next) {
-//   if (this.seatMap && this.seatMap.groups) {
-//     let totalSeats = 0;
-//     this.seatMap.groups.forEach((group) => {
-//       if (group.grid) {
-//         group.grid.forEach((row) => {
-//           totalSeats += row.length;
-//         });
-//       }
-//     });
-//     this.capacity = totalSeats;
-//   }
-//   next();
-// });
+function calculateCapacity(seatMap) {
+  let totalSeats = 0;
+
+  if (seatMap?.groups) {
+    seatMap.groups.forEach((group) => {
+      if (group.grid) {
+        group.grid.forEach((row) => {
+          totalSeats += row.length;
+        });
+      }
+    });
+  }
+
+  return totalSeats;
+}
+
+venueSchema.pre('save', function (next) {
+  if (this.seatMap) {
+    this.capacity = calculateCapacity(this.seatMap);
+  }
+  next();
+});
+
+venueSchema.pre(['findOneAndUpdate', 'updateOne'], function (next) {
+  const update = this.getUpdate();
+
+  if (update.seatMap) {
+    update.capacity = calculateCapacity(update.seatMap);
+    this.setUpdate(update);
+  }
+
+  next();
+});
 
 venueSchema.index({ city: 1, name: 1 }, { unique: true });
 

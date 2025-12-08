@@ -66,8 +66,6 @@ exports.createVenue = catchAsync(async (req, res, next) => {
     address: req.body.address,
     city: req.body.city,
     country: req.body.country,
-    seatMap: req.body.seatMap,
-    capacity: req.body.capacity,
   });
 
   res.status(201).json({ status: 'success', data: newVenue });
