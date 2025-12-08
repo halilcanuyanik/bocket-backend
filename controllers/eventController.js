@@ -308,6 +308,12 @@ exports.createEvent = catchAsync(async (req, res, next) => {
 
   const eventSeatMap = JSON.parse(JSON.stringify(venue.seatMap));
 
+  if (eventSeatMap.groups && req.body.pricing?.base != null) {
+    eventSeatMap.groups.forEach((group) => {
+      group.price = req.body.pricing.base;
+    });
+  }
+
   const newEvent = await Event.create({
     showId: req.body.showId,
     venueId: req.body.venueId,
