@@ -34,10 +34,6 @@ const groupSchema = new mongoose.Schema(
       type: [[seatSchema]],
       required: true,
     },
-    price: {
-      type: Number,
-      min: [0, 'The minimum price value must be 0'],
-    },
   },
   { _id: false }
 );

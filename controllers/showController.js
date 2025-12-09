@@ -66,9 +66,6 @@ exports.createShow = catchAsync(async (req, res, next) => {
     description: req.body.description,
     category: req.body.category,
     coverImage: req.body.coverImage,
-    organizerId: req.body.organizerId,
-    approvedBy: req.body.approvedBy,
-    status: req.body.status,
     performers: req.body.performers,
   });
 
@@ -83,9 +80,6 @@ exports.updateShow = catchAsync(async (req, res, next) => {
       description: req.body.description,
       category: req.body.category,
       coverImage: req.body.coverImage,
-      organizerId: req.body.organizerId,
-      approvedBy: req.body.approvedBy,
-      status: req.body.status,
       performers: req.body.performers,
     },
     {

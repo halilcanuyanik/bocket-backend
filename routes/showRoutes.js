@@ -6,25 +6,6 @@ const eventController = require('../controllers/eventController');
 const router = express.Router();
 
 router
-  .route('/search')
-  .get(
-    authController.protect,
-    authController.restrictTo('admin'),
-    showController.search
-  );
-
-router.route('/events/search').get(eventController.search);
-
-router
-  .route('/events')
-  .get(eventController.getAllEvents)
-  .post(
-    authController.protect,
-    authController.restrictTo('admin'),
-    eventController.createEvent
-  );
-
-router
   .route('/topRated')
   .get(eventController.topRated, eventController.getAllEvents);
 
@@ -35,6 +16,33 @@ router.get(
   eventController.almostSoldOut,
   eventController.getAllEvents
 );
+
+router.route('/events/search').get(eventController.search);
+
+router
+  .route('/events/update-time')
+  .patch(
+    authController.protect,
+    authController.restrictTo('admin'),
+    eventController.updateEventTime
+  );
+
+router
+  .route('/events/update-price')
+  .patch(
+    authController.protect,
+    authController.restrictTo('admin'),
+    eventController.updateEventPrice
+  );
+
+router
+  .route('/events')
+  .get(eventController.getAllEvents)
+  .post(
+    authController.protect,
+    authController.restrictTo('admin'),
+    eventController.createEvent
+  );
 
 router
   .route('/events/:id')
@@ -48,6 +56,14 @@ router
     authController.protect,
     authController.restrictTo('admin'),
     eventController.deleteEvent
+  );
+
+router
+  .route('/search')
+  .get(
+    authController.protect,
+    authController.restrictTo('admin'),
+    showController.search
   );
 
 router.route('/:id/events').get(eventController.getEvents);

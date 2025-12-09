@@ -329,26 +329,50 @@ exports.createEvent = catchAsync(async (req, res, next) => {
   res.status(201).json({ status: 'success', data: newEvent });
 });
 
-exports.updateEvent = catchAsync(async (req, res, next) => {
-  const updatedEvent = await Event.findByIdAndUpdate(
-    req.params.id,
-    {
-      startTime: req.body.startTime,
-      endTime: req.body.endTime,
-      pricing: {
-        base: req.body.pricing?.base,
-        currency: req.body.pricing?.currency,
-      },
-    },
-    { new: true }
-  );
+exports.updateEventTime = catchAsync(async (req, res, next) => {
+  const event = await Event.findById(req.params.id);
+  if (!event) return next(new AppError('Event not found!', 404));
 
-  if (!updatedEvent) return next(new AppError('Event not found!', 404));
+  const startTime = req.body.startTime;
+  const endTime = req.body?.endTime;
 
-  res.status(200).json({ status: 'success', data: updatedEvent });
+  if (!startTime) {
+    return next(new AppError('Invalid start time!', 400));
+  }
+
+  if (endTime && endTime <= startTime) {
+    return next(new AppError('End time must be after start time.', 400));
+  }
+
+  event.startTime = startTime;
+  if (endTime !== undefined) event.endTime = endTime;
+
+  await event.save({ validateBeforeSave: false });
+
+  res.status(200).json({ status: 'success', data: event });
 });
 
-exports.updateSeatMapPrice = catchAsync(async (req, res, next) => {});
+exports.updateEventPrice = catchAsync(async (req, res, next) => {
+  const event = await Event.findById(req.params.id);
+  if (!event) return next(new AppError('Event not found!', 404));
+
+  const { base, currency } = req.body.pricing;
+
+  if (event.eventSeatMap?.groups) {
+    event.eventSeatMap.groups.forEach((group) => {
+      if (group.price == null || group.price < req.body.pricing.base) {
+        group.price = req.body.pricing.base;
+      }
+    });
+  }
+
+  event.pricing.base = base;
+  event.pricing.currency = currency;
+
+  await event.save({ validateBeforeSave: false });
+
+  res.status(200).json({ status: 'success', data: event });
+});
 
 exports.deleteEvent = catchAsync(async (req, res, next) => {
   const deletedEvent = await Event.findByIdAndDelete(req.params.id);
