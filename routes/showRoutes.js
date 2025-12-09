@@ -47,11 +47,6 @@ router
 router
   .route('/events/:id')
   .get(eventController.getEvent)
-  .patch(
-    authController.protect,
-    authController.restrictTo('admin'),
-    eventController.updateEvent
-  )
   .delete(
     authController.protect,
     authController.restrictTo('admin'),
