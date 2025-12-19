@@ -1,14 +1,19 @@
-const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+dotenv.config({ path: './config.env' });
+
+const mongoose = require('mongoose');
 const app = require('./app');
+const http = require('http');
+const { Server } = require('socket.io');
+
+const authenticateSocket = require('./utils/socketAuth');
+const setupSeatLockSocket = require('./sockets/seatLockSocket');
 
 process.on('uncaughtException', (err) => {
   console.log(err.name, err.message);
   console.log('UNCAUGHT EXCEPTION! Shutting down...');
   process.exit(1);
 });
-
-dotenv.config({ path: './config.env' });
 
 const DB = process.env.DATABASE.replace(
   '<username>',
@@ -31,7 +36,20 @@ mongoose
 
 const port = process.env.PORT || 8000;
 
-const server = app.listen(port, () => {
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: process.env.FRONTEND_ORIGIN,
+    credentials: true,
+  },
+});
+
+io.use((socket, next) => authenticateSocket(socket, next));
+
+setupSeatLockSocket(io);
+
+server.listen(port, () => {
   console.log(`The server is listening on ${port}...`);
 });
 

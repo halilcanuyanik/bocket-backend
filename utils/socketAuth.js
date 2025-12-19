@@ -23,7 +23,10 @@ const authenticateSocket = catchAsync(async (socket, next) => {
     return next(new AppError('Token not provided!', 401));
   }
 
-  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  const decoded = await promisify(jwt.verify)(
+    token,
+    process.env.JWT_ACCESS_SECRET
+  );
   socket.user = {
     id: decoded.id,
     email: decoded.email,
