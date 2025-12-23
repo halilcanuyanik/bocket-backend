@@ -204,10 +204,7 @@ exports.search = catchAsync(async (req, res, next) => {
       $lookup: {
         from: 'performers',
         let: { performerIds: '$show.performers' },
-        pipeline: [
-          { $match: { $expr: { $in: ['$_id', '$$performerIds'] } } },
-          { $project: { _id: 0, name: 1 } },
-        ],
+        pipeline: [{ $match: { $expr: { $in: ['$_id', '$$performerIds'] } } }],
         as: 'show.performers',
       },
     },
@@ -218,18 +215,6 @@ exports.search = catchAsync(async (req, res, next) => {
           { 'venue.name': { $regex: regex } },
           { 'show.performers.name': { $regex: regex } },
         ],
-      },
-    },
-    {
-      $project: {
-        _id: 1,
-        startTime: 1,
-        endTime: 1,
-        'show.coverImage': 1,
-        'show.title': 1,
-        'venue.name': 1,
-        'show.performers.name': 1,
-        pricing: 1,
       },
     },
   ]);

@@ -81,14 +81,9 @@ eventSchema.pre('save', async function (next) {
 eventSchema.pre(/^find/, function (next) {
   this.populate({
     path: 'showId',
-    populate: {
-      path: 'performers',
-      select: 'name',
-    },
-  }).populate({
-    path: 'venueId',
-    // select: 'name country city address capacity',
-  });
+    populate: { path: 'performers' },
+  }).populate('venueId');
+
   next();
 });
 
