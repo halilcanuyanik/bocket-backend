@@ -304,7 +304,7 @@ exports.createEvent = catchAsync(async (req, res, next) => {
     venueId: req.body.venueId,
     eventSeatMap,
     startTime: req.body.startTime,
-    endTime: req.body.endTime,
+    endTime: req.body?.endTime,
     pricing: {
       base: req.body.pricing?.base,
       currency: req.body.pricing?.currency,
