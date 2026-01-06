@@ -314,12 +314,11 @@ exports.createEvent = catchAsync(async (req, res, next) => {
   res.status(201).json({ status: 'success', data: newEvent });
 });
 
-exports.updateEventTime = catchAsync(async (req, res, next) => {
+exports.updateEvent = catchAsync(async (req, res, next) => {
   const event = await Event.findById(req.params.id);
   if (!event) return next(new AppError('Event not found!', 404));
 
-  const startTime = req.body.startTime;
-  const endTime = req.body?.endTime;
+  const { startTime, endTime, pricing } = req.body;
 
   if (!startTime) {
     return next(new AppError('Invalid start time!', 400));
@@ -330,33 +329,63 @@ exports.updateEventTime = catchAsync(async (req, res, next) => {
   }
 
   event.startTime = startTime;
-  if (endTime !== undefined) event.endTime = endTime;
+  if (endTime !== undefined) {
+    event.endTime = endTime;
+  }
+
+  if (pricing?.base !== undefined) {
+    const base = pricing.base;
+
+    if (event.eventSeatMap?.groups?.length) {
+      event.eventSeatMap.groups.forEach((group) => {
+        if (group.price == null || group.price < base) {
+          group.price = base;
+        }
+      });
+    }
+
+    event.pricing.base = base;
+  }
 
   await event.save({ validateBeforeSave: false });
 
   res.status(200).json({ status: 'success', data: event });
 });
 
-exports.updateEventPrice = catchAsync(async (req, res, next) => {
+exports.updateEventGroupPrices = catchAsync(async (req, res, next) => {
   const event = await Event.findById(req.params.id);
-  if (!event) return next(new AppError('Event not found!', 404));
-
-  const { base, currency } = req.body.pricing;
-
-  if (event.eventSeatMap?.groups) {
-    event.eventSeatMap.groups.forEach((group) => {
-      if (group.price == null || group.price < req.body.pricing.base) {
-        group.price = req.body.pricing.base;
-      }
-    });
+  if (!event) {
+    return next(new AppError('Event not found!', 404));
   }
 
-  event.pricing.base = base;
-  event.pricing.currency = currency;
+  const { groups } = req.body;
+
+  if (!Array.isArray(groups)) {
+    return next(new AppError('Invalid groups data!', 400));
+  }
+
+  if (!Array.isArray(event.eventSeatMap?.groups)) {
+    return next(new AppError('Event has no seat groups!', 400));
+  }
+
+  groups.forEach((incomingGroup) => {
+    if (incomingGroup.price === undefined) return;
+
+    const eventGroup = event.eventSeatMap.groups.find(
+      (group) => group.id === incomingGroup.id
+    );
+
+    if (!eventGroup) return;
+
+    eventGroup.price = incomingGroup.price;
+  });
 
   await event.save({ validateBeforeSave: false });
 
-  res.status(200).json({ status: 'success', data: event });
+  res.status(200).json({
+    status: 'success',
+    data: event,
+  });
 });
 
 exports.deleteEvent = catchAsync(async (req, res, next) => {
